@@ -1,0 +1,333 @@
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
+<html>
+  <head><meta name="generator" content="Hexo 3.8.0">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  
+  
+  <title>  理解JavaScript：原型 |   HEXO-THEME-NAYO </title>
+
+ 
+  
+    <link rel="icon" href="/images/favicon.png">
+  
+
+
+  <link rel="stylesheet" href="/nayo.min.css"> 
+</head>  
+  <body>   
+    
+      <header class="header">
+	
+  <nav class="header-inner">        
+
+    <span class="iconfont icon-menu mobile-toggle"></span>   	
+
+    <div class="header-logo">
+      <a href="/">
+        <img class="header-logo-img" src="/images/logo.png">
+      </a>
+    </div>
+
+    <div class="header-menu">          
+              
+          
+            <a class="header-menu-link" id="header-menu-home" href="/">
+              <i class="iconfont icon-home">  
+            </i></a>     
+          
+              
+          
+            <a class="header-menu-link" id="header-menu-archives" href="/archives">
+              <i class="iconfont icon-archives">  
+            </i></a>     
+          
+              
+          
+            <a class="header-menu-link" id="header-menu-tags" href="/tags">
+              <i class="iconfont icon-tags">  
+            </i></a>     
+          
+              
+          
+            <a class="header-menu-link" id="header-menu-about" href="/about">
+              <i class="iconfont icon-about">  
+            </i></a>     
+          
+              
+          
+              <a class="header-menu-link" id="header-menu-search">
+                <i class="iconfont icon-search">  
+              </i></a>
+          
+                  
+    </div>  
+    
+  </nav>
+</header>
+
+   
+
+      <div class="container">       
+          
+          
+            <div class="container-inner">  
+          
+
+          <article class="post">
+  
+	
+<div class="post-header">
+	<p class="post-title">	
+		理解JavaScript：原型
+	</p>
+
+	<div class="post-info">	
+		<span class="post-info-entry">
+			Dec 04, 2018
+		</span>
+
+		
+		
+			<i class="iconfont icon-words"></i>
+			<span class="post-info-entry">2669
+			</span>
+		
+	</div>
+</div> 
+	
+ 
+
+	  <div class="typo post-content slideDownMin">
+
+		
+
+			
+					<h3 id="为什么要理解原型？"><a href="#为什么要理解原型？" class="headerlink" title="为什么要理解原型？"></a>为什么要理解原型？</h3><p>尽管JavaScript是面向对象的，但是它并不是基于类的语言，而更像是基于原型的语言，因为每个对象都拥有一个原型对象。对象以其原型为模版创建对象实例，从原型继承属性和方法。换句话说，理解原型是使用原型模式创建实例或者通过原型继承获得“父类”的属性和方法的前提。<br><a id="more"></a></p>
+<h3 id="什么是原型？"><a href="#什么是原型？" class="headerlink" title="什么是原型？"></a>什么是原型？</h3><p>当我们创建一个函数时，这个函数会自动获得一个prototype（原型）属性。这个属性实际上是一个<code>指针</code>，它指向一个对象，这个对象就是函数的原型对象。哪怕不去使用这个属性，它也会一直存在。而在默认情况下，原型对象也会自动获得一个属性：constructor。它也是一个<code>指针</code>,它从原型对象指回prototype属性所在的函数，通过这个函数可以继续为原型对象添加更多的属性和方法。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Foo</span>(<span class="params"></span>)</span>&#123;&#125;  <span class="comment">//声明一个空函数Foo</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//Foo函数自动获得prototype属性</span></span><br><span class="line"><span class="built_in">console</span>.log(Foo.hasOwnProperty(<span class="string">"prototype"</span>));  <span class="comment">//true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//函数的原型对象获得一个constructor属性，这个属性是一个指回Foo函数的指针</span></span><br><span class="line"><span class="built_in">console</span>.log(Foo.prototype.constructor == Foo);  <span class="comment">//true</span></span><br></pre></td></tr></table></figure>
+<p>当我们通过new关键字调用构造函数创建一个实例时，这个新对象会被执行[[ Prototype ]]链接，将该实例的内部属性<code>指针</code>[[prototype]]指向构造函数的原型对象。</p>
+<p>由于这个指针的存在，实例可以访问原型对象中的属性。例如，实例中是不包含constructor属性的，但是可以通过指针访问原型对象中的constructor属性。<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Foo</span>(<span class="params"></span>)</span>&#123;&#125;  <span class="comment">//声明一个空函数Foo作为构造函数</span></span><br><span class="line"><span class="keyword">var</span> foo = <span class="keyword">new</span> Foo();  <span class="comment">//创建一个实例foo</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//IE9+，Firefox3.5+，Safari5+，Opera12+和Chrome支持Object.getPrototypeOf()方法</span></span><br><span class="line"><span class="comment">//实例foo的[[Prototype]]指向其构造函数Foo的原型对象</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">Object</span>.getPrototypeOf(foo)  == Foo.prototype);  <span class="comment">//true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//实例可以访问原型对象中的constructor属性</span></span><br><span class="line"><span class="built_in">console</span>.log(foo.constructor == Foo.prototype.constructor);  <span class="comment">//true</span></span><br></pre></td></tr></table></figure></p>
+<p>请注意这个连接并不存在于实例和其构造函数之间，而是存在于实例与构造函数的原型对象之间。</p>
+<h3 id="如何使用原型？"><a href="#如何使用原型？" class="headerlink" title="如何使用原型？"></a>如何使用原型？</h3><p>先来看一个具体的例子，使用原型模式创建实例。<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Dog</span>(<span class="params"></span>)</span>&#123;&#125;  <span class="comment">//声明一个空函数Dog当作构造函数</span></span><br><span class="line">Dog.prototype.name = <span class="string">"Pokki"</span>;  <span class="comment">//在构造函数的原型对象上定义属性</span></span><br><span class="line">Dog.prototype.sayName = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;  <span class="comment">//在构造函数的原型对象上定义方法</span></span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"Come "</span> + <span class="keyword">this</span>.name + <span class="string">"!"</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> myDog = <span class="keyword">new</span> Dog();  <span class="comment">//创建一个Dog（类型）的对象实例</span></span><br><span class="line">myDog.sayName();  <span class="comment">//"Come Pokki!"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> myFriend = <span class="keyword">new</span> Dog();  <span class="comment">//创建另一个Dog（类型）的对象实例</span></span><br><span class="line">myFriend.sayName();  <span class="comment">//"Come Pokki!"</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(myDog.name == myFriend.name);  <span class="comment">//true，两个实例共享原型对象的属性</span></span><br><span class="line"><span class="built_in">console</span>.log(myDog.sayName == myFriend.sayName);  <span class="comment">//true，两个实例共享原型对象的方法</span></span><br></pre></td></tr></table></figure></p>
+<p>我们将属性name和方法sayName()直接添加到了构造函数的原型对象上（prototype属性中）。尽管这样一来构造函数变成了空函数，却依然可以通过调用它来创建新对象。所有的新对象（myDog和myFriedn）共享属性和方法。也就是说myDog和myFriend访问的是同一个name属性和sayName()函数。</p>
+<h3 id="简化原型语法"><a href="#简化原型语法" class="headerlink" title="简化原型语法"></a>简化原型语法</h3><p>为原型对象添加属性一般会使用更简洁的语法，同时也从视觉上更好地封装原型的属性和方法。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Dog</span>(<span class="params"></span>) </span>&#123;&#125;</span><br><span class="line">Dog.prototype = &#123;</span><br><span class="line">  name: <span class="string">"Pokki"</span>,</span><br><span class="line">  breed: <span class="string">"Toy Poodle"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> myDog = <span class="keyword">new</span> Dog();</span><br><span class="line"><span class="built_in">console</span>.log(myDog.name);  <span class="comment">//"Pokki"</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(Dog.prototype.constructor == <span class="built_in">Object</span>);  <span class="comment">//true</span></span><br></pre></td></tr></table></figure>
+<p>如此定义原型对象的结果和我们用前面的方法得到的结果基本一致。唯一的不同在于constructor属性不再指向Dog构造函数了，而是指向了Object构造函数。这是因为新的方法在本质上完全重写了默认的prototype对象。就结果来说，使用构造函数或对象字面量语法创建对象并没有什么不同，所以可以将上面的代码改写成下面的样子。这样更容易理解，为什么新原型对象的constructor属性为什么会指向Object了。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Dog</span>(<span class="params"></span>) </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> obj = <span class="keyword">new</span> <span class="built_in">Object</span>();</span><br><span class="line">obj.name = <span class="string">"Pokki"</span>;</span><br><span class="line">obj.breed = <span class="string">"Toy Poodle"</span>;</span><br><span class="line"></span><br><span class="line">Dog.prototype = obj;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> myDog = <span class="keyword">new</span> Dog();</span><br><span class="line"><span class="built_in">console</span>.log(myDog.breed);  <span class="comment">//"Toy Poodle"</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(Dog.prototype.constructor == <span class="built_in">Object</span>);  <span class="comment">//true</span></span><br></pre></td></tr></table></figure>
+<p>如果constructor的值真的很重要，可以将它设置回适当的值。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Dog</span>(<span class="params"></span>) </span>&#123;&#125;</span><br><span class="line">Dog.prototype = &#123;</span><br><span class="line">  <span class="keyword">constructor</span>: Dog,  //让<span class="keyword">constructor</span>重新指回Dog构造函数</span><br><span class="line">  name: "Pokki",</span><br><span class="line">  breed: "Toy Poodle"</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此外，从上面的例子中，我们并没有赋予实例属性<code>var myDog = new Dog();</code>，它却可以使用原型对象的属性<code>breed</code>。这是为什么呢？实例是如何和属性互动的呢？</p>
+  	
+					
+	  </div>     
+	  
+
+	<div class="post-footer">
+
+
+  <div class="post-footer-other">
+    
+      <span class="post-footer-item">
+        
+
+
+<span class="donate-btn">
+	<span class="iconfont icon-donate"></span>
+</span>
+
+<div id="donate-box" class="sildeUpMin">
+
+	<span class="donate-cancel iconfont icon-cancel"></span>
+
+	<div class="donate-img-box">
+		<img id="donate-qr-wechat" class="noLazyLoad donate-img" src="/images/donate1.png" alt="No Donate Image!">	
+		<img id="donate-qr-alipay" class="noLazyLoad donate-img" src="/images/donate2.png" alt="No Donate Image!">	
+	</div>
+
+	<span class="donate-word">世界美好 你也是</span>
+
+	<div class="donate-list">
+		<span class="iconfont icon-donate-wechat"></span>
+		<span class="iconfont icon-donate-alipay"></span>
+	</div>
+
+</div>
+ 
+      </span>        
+       
+    
+      <span class="post-footer-item">
+        <span class="share-btn">
+	<span class="iconfont icon-share"></span>
+</span>
+<div class="-mob-share sildeUpMin">
+	<ul class="-mob-inner">
+	   			             
+        <li class="iconfont 
+		icon-share-qq 
+		-mob-share-qq 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-weixin 
+		-mob-share-weixin 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-weibo 
+		-mob-share-weibo 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-douban 
+		-mob-share-douban 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-facebook 
+		-mob-share-facebook 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-twitter 
+		-mob-share-twitter 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-google 
+		-mob-share-google 
+		-mob-share-link"></li>		
+   	   
+	</ul>
+</div>	
+
+
+<script id="-mob-share" src="https://f1.webshare.mob.com/code/mob-share.js?appkey=21d601593a1de"></script>
+      </span>  
+               
+  </div>  
+    
+
+
+  <div class="post-footer-meta">
+        	
+
+        
+          <i class="iconfont icon-tag"></i>     
+            <a class="tag-link" href="/tags/javascript/">javascript</a> <a class="tag-link" href="/tags/you-dont-know-js/">you-dont-know-js</a>    
+        	
+  </div>
+
+</div>
+
+
+<nav class="post-footer-nav">
+  <div class="post-footer-link">
+  
+      <a href="/2018/12/04/understanding-javascript-object/" id="post-nav-older" class="post-nav-link-wrap">
+        <strong class="post-nav-caption">older</strong>
+        
+          <a class="post-nav-title" href="/2018/12/04/understanding-javascript-object/">
+          理解JavaScript：对象</a>
+      </a>
+  
+  </div>
+  <div class="post-footer-link">
+    
+  </div>
+
+</nav>
+ 
+	
+	
+</article>
+
+          </div> 
+      </div>            
+    
+    <a id="page-backTop">
+      <span>
+        <i class="iconfont icon-backtotop"></i>
+      </span>
+    </a> 
+
+  
+    
+    <div class="search-container sildeUpMin">
+        <div class="search-header">
+            <input type="text" placeholder="输入你想搜索的" id="search-input" class="search-input">
+            <span class="search-cancel">
+                <i class="iconfont icon-cancel">
+            </i></span>
+        </div>
+        <div id="search-result" class="search-result"></div>
+    </div>
+ 
+     <div class="mobile-menu">      
+
+      
+      <img class="mobile-menu-icon" src="/images/favicon.png">   
+      
+
+         
+            
+
+            <a class="mobile-menu-link" href="/">首页
+            </a>
+            
+         
+            
+
+            <a class="mobile-menu-link" href="/archives">归档
+            </a>
+            
+         
+            
+
+            <a class="mobile-menu-link" href="/tags">标签
+            </a>
+            
+         
+            
+
+            <a class="mobile-menu-link" href="/about">关于
+            </a>
+            
+         
+                          
+
+            <a class="mobile-menu-link mobile-menu-search" href="#">搜索 </a>                 
+            
+         
+      
+</div>        
+    
+
+
+
+     
+    
+
+
+
+
+<footer id="footer">	    
+
+		
+		<div class="footer-copyright">
+		&copy;
+		
+		2018		
+	
+		Lemon
+		<br>
+
+		Theme  <a href="https://github.com/Lemonreds/hexo-theme-Nayo" target="_blank">Nayo</a>
+		</div>			
+	 
+</footer>   
+
+    <script src="/nayo.bundle.js"></script>           
+  </body>        
+</html>
