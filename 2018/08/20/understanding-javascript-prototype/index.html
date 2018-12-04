@@ -90,7 +90,7 @@
 		
 		
 			<i class="iconfont icon-words"></i>
-			<span class="post-info-entry">2669
+			<span class="post-info-entry">2672
 			</span>
 		
 	</div>
@@ -103,7 +103,7 @@
 		
 
 			
-					<h3 id="为什么要理解原型？"><a href="#为什么要理解原型？" class="headerlink" title="为什么要理解原型？"></a>为什么要理解原型？</h3><p>尽管JavaScript是面向对象的，但是它并不是基于类的语言，而更像是基于原型的语言，因为每个对象都拥有一个原型对象。对象以其原型为模版创建对象实例，从原型继承属性和方法。换句话说，理解原型是使用原型模式创建实例或者通过原型继承获得“父类”的属性和方法的前提。<br><a id="more"></a></p>
+					<p>为什么要去理解原型呢？这是因为尽管JavaScript是面向对象的，但是它并不是基于类的语言，而更像是基于原型的语言。每个对象都拥有一个原型对象，对象会以其原型为模版创建对象实例并从继承属性和方法。换句话说，理解原型是使用原型模式创建实例或者通过原型继承获得“父类”的属性和方法的前提。<br><a id="more"></a></p>
 <h3 id="什么是原型？"><a href="#什么是原型？" class="headerlink" title="什么是原型？"></a>什么是原型？</h3><p>当我们创建一个函数时，这个函数会自动获得一个prototype（原型）属性。这个属性实际上是一个<code>指针</code>，它指向一个对象，这个对象就是函数的原型对象。哪怕不去使用这个属性，它也会一直存在。而在默认情况下，原型对象也会自动获得一个属性：constructor。它也是一个<code>指针</code>,它从原型对象指回prototype属性所在的函数，通过这个函数可以继续为原型对象添加更多的属性和方法。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Foo</span>(<span class="params"></span>)</span>&#123;&#125;  <span class="comment">//声明一个空函数Foo</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//Foo函数自动获得prototype属性</span></span><br><span class="line"><span class="built_in">console</span>.log(Foo.hasOwnProperty(<span class="string">"prototype"</span>));  <span class="comment">//true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//函数的原型对象获得一个constructor属性，这个属性是一个指回Foo函数的指针</span></span><br><span class="line"><span class="built_in">console</span>.log(Foo.prototype.constructor == Foo);  <span class="comment">//true</span></span><br></pre></td></tr></table></figure>
 <p>当我们通过new关键字调用构造函数创建一个实例时，这个新对象会被执行[[ Prototype ]]链接，将该实例的内部属性<code>指针</code>[[prototype]]指向构造函数的原型对象。</p>
