@@ -84,13 +84,13 @@
 
 	<div class="post-info">	
 		<span class="post-info-entry">
-			Dec 04, 2018
+			Aug 10, 2018
 		</span>
 
 		
 		
 			<i class="iconfont icon-words"></i>
-			<span class="post-info-entry">3576
+			<span class="post-info-entry">3586
 			</span>
 		
 	</div>
@@ -103,12 +103,12 @@
 		
 
 			
-					<h3 id="创建对象"><a href="#创建对象" class="headerlink" title="创建对象"></a>创建对象</h3><p>最简单的定义对象的方法有两种。一种是通过创建Object的实例，再在上面添加属性和方法。</p>
+					<p>在JavaScript中最简单的定义对象的方法有两种。一种是通过创建Object的实例，再在上面添加属性和方法。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> obj = <span class="keyword">new</span> <span class="built_in">Object</span>();</span><br><span class="line">obj.key = value;</span><br></pre></td></tr></table></figure>
 <p>另一种是使用对象字面量（object literal）语法。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  key: value,</span><br><span class="line">  key2: value2</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>但是问题在于这样一次只能定义一个对象。那么还有什么其他更实用的方法呢？<br><a id="more"></a></p>
-<h4 id="方法1-构造函数模式"><a href="#方法1-构造函数模式" class="headerlink" title="方法1. 构造函数模式"></a>方法1. 构造函数模式</h4><p>构造函数模式可以用来创建特定类型的对象。JavaScript中的构造函数并不是一些特殊的方法，它们只是被new操作符调用的普通函数。所以并不存在所谓的“构造函数”，只有对函数的“构造调用”。</p>
+<p>但是问题在于这样一次只能定义一个对象。那么如何更有效的定义对象呢？<br><a id="more"></a></p>
+<h3 id="创建对象"><a href="#创建对象" class="headerlink" title="创建对象"></a>创建对象</h3><h4 id="方法1-构造函数模式"><a href="#方法1-构造函数模式" class="headerlink" title="方法1. 构造函数模式"></a>方法1. 构造函数模式</h4><p>构造函数模式可以用来创建特定类型的对象。JavaScript中的构造函数并不是一些特殊的方法，它们只是被new操作符调用的普通函数。所以并不存在所谓的“构造函数”，只有对函数的“构造调用”。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Dog</span>(<span class="params">name</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.name = name;</span><br><span class="line">  <span class="keyword">this</span>.sayName = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"Come "</span> + <span class="keyword">this</span>.name + <span class="string">"!"</span>);</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> myDog = <span class="keyword">new</span> Dog(<span class="string">"Pokki"</span>);</span><br><span class="line"><span class="built_in">console</span>.log(myDog.name);  <span class="comment">//"Pokki"</span></span><br><span class="line">myDog.sayName();  <span class="comment">//"Come Pokki!"</span></span><br></pre></td></tr></table></figure>
 <p>使用new来调用函数时，会执行下面的操作：</p>
 <ul>
@@ -250,10 +250,10 @@
   </div>
   <div class="post-footer-link">
     
-        <a href="/2018/12/04/understanding-javascript-prototype/" id="post-nav-newer" class="post-nav-link-wrap">
+        <a href="/2018/08/20/understanding-javascript-prototype/" id="post-nav-newer" class="post-nav-link-wrap">
           <strong class="post-nav-caption">newer</strong>
              
-            <a class="post-nav-title" href="/2018/12/04/understanding-javascript-prototype/">
+            <a class="post-nav-title" href="/2018/08/20/understanding-javascript-prototype/">
             理解JavaScript：原型</a>
         </a>
     
@@ -278,7 +278,7 @@
     
     <div class="search-container sildeUpMin">
         <div class="search-header">
-            <input type="text" placeholder="输入你想搜索的" id="search-input" class="search-input">
+            <input type="text" placeholder="Typing Something here." id="search-input" class="search-input">
             <span class="search-cancel">
                 <i class="iconfont icon-cancel">
             </i></span>
@@ -295,31 +295,31 @@
          
             
 
-            <a class="mobile-menu-link" href="/">首页
+            <a class="mobile-menu-link" href="/">Home
             </a>
             
          
             
 
-            <a class="mobile-menu-link" href="/archives">归档
+            <a class="mobile-menu-link" href="/archives">Archives
             </a>
             
          
             
 
-            <a class="mobile-menu-link" href="/tags">标签
+            <a class="mobile-menu-link" href="/tags">Tags
             </a>
             
          
             
 
-            <a class="mobile-menu-link" href="/about">关于
+            <a class="mobile-menu-link" href="/about">About
             </a>
             
          
                           
 
-            <a class="mobile-menu-link mobile-menu-search" href="#">搜索 </a>                 
+            <a class="mobile-menu-link mobile-menu-search" href="#">Search </a>                 
             
          
       
