@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   
   
-  <title>  理解JavaScript：对象 |   HEXO-THEME-NAYO </title>
+  <title>  理解JavaScript：对象 |   Bohai的博客 </title>
 
  
   
@@ -94,9 +94,9 @@
 			</span>
 		
 	</div>
-</div> 
+</div>
 	
- 
+
 
 	  <div class="typo post-content slideDownMin">
 
@@ -140,10 +140,10 @@
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"foo"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> someFoo = foo;  <span class="comment">//对foo的引用</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  someFoo: foo  <span class="comment">//对foo的引用</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(foo);  <span class="comment">//function foo()&#123;..&#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(someFoo);  <span class="comment">//function foo()&#123;..&#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(obj.someFoo);  <span class="comment">//function foo()&#123;..&#125;</span></span><br></pre></td></tr></table></figure>
 <p>即使在对象的字面量形式中声明一个函数表达式，这个函数也不“属于”这个对象，这只是对于同一个函数对象的不同的引用。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  foo: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"foo"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> someFoo = obj.foo;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(someFoo);  <span class="comment">//function foo()&#123;..&#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(obj.foo);  <span class="comment">//function foo()&#123;..&#125;</span></span><br></pre></td></tr></table></figure>
-  	
-					
-	  </div>     
-	  
+
+			
+	  </div>
+
 
 	<div class="post-footer">
 
@@ -232,10 +232,22 @@
   </div>
 
 </nav>
- 
+
 	
-	
+
 </article>
+
+	<div class="toc-container">
+			<div class="toc-sidebar">
+			<p class="toc-title">
+				目錄
+			</p>
+			<div class="toc-list">
+				<ol class="toc-inner"><li class="toc-inner-item toc-inner-level-3"><a class="toc-inner-link" href="#创建对象"><span class="toc-inner-text">创建对象</span></a><ol class="toc-inner-child"><li class="toc-inner-item toc-inner-level-4"><a class="toc-inner-link" href="#方法1-构造函数模式"><span class="toc-inner-text">方法1. 构造函数模式</span></a></li><li class="toc-inner-item toc-inner-level-4"><a class="toc-inner-link" href="#方法2-原型模式"><span class="toc-inner-text">方法2. 原型模式</span></a></li><li class="toc-inner-item toc-inner-level-4"><a class="toc-inner-link" href="#方法3-组合使用构造函数模式和原型模式"><span class="toc-inner-text">方法3. 组合使用构造函数模式和原型模式</span></a></li></ol></li><li class="toc-inner-item toc-inner-level-3"><a class="toc-inner-link" href="#对象的内容"><span class="toc-inner-text">对象的内容</span></a><ol class="toc-inner-child"><li class="toc-inner-item toc-inner-level-4"><a class="toc-inner-link" href="#“对象的方法”？"><span class="toc-inner-text">“对象的方法”？</span></a></li></ol></li></ol>
+			</div>
+		</div>
+	</div>
+
 
           </div> 
       </div>            
@@ -250,7 +262,7 @@
     
     <div class="search-container sildeUpMin">
         <div class="search-header">
-            <input type="text" placeholder="Typing Something here." id="search-input" class="search-input">
+            <input type="text" placeholder="输入你想搜索的" id="search-input" class="search-input">
             <span class="search-cancel">
                 <i class="iconfont icon-cancel">
             </i></span>
@@ -267,31 +279,31 @@
          
             
 
-            <a class="mobile-menu-link" href="/">Home
+            <a class="mobile-menu-link" href="/">首頁
             </a>
             
          
             
 
-            <a class="mobile-menu-link" href="/archives">Archives
+            <a class="mobile-menu-link" href="/archives">歸檔
             </a>
             
          
             
 
-            <a class="mobile-menu-link" href="/tags">Tags
+            <a class="mobile-menu-link" href="/tags">標籤
             </a>
             
          
             
 
-            <a class="mobile-menu-link" href="/about">About
+            <a class="mobile-menu-link" href="/about">關於
             </a>
             
          
                           
 
-            <a class="mobile-menu-link mobile-menu-search" href="#">Search </a>                 
+            <a class="mobile-menu-link mobile-menu-search" href="#">搜索 </a>                 
             
          
       
