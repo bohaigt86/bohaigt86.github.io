@@ -1,0 +1,340 @@
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
+<html>
+  <head><meta name="generator" content="Hexo 3.8.0">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  
+  
+  <title>  理解JavaScript：像引擎一样去思考 |   Bohai的博客 </title>
+
+ 
+  
+    <link rel="icon" href="/images/favicon.png">
+  
+
+
+  <link rel="stylesheet" href="/nayo.min.css"> 
+</head>  
+  <body>   
+    
+      <header class="header">
+	
+  <nav class="header-inner">        
+
+    <span class="iconfont icon-menu mobile-toggle"></span>   	
+
+    <div class="header-logo">
+      <a href="/">
+        <img class="header-logo-img" src="/images/logo.png">
+      </a>
+    </div>
+
+    <div class="header-menu">          
+              
+          
+            <a class="header-menu-link" id="header-menu-home" href="/">
+              <i class="iconfont icon-home">  
+            </i></a>     
+          
+              
+          
+            <a class="header-menu-link" id="header-menu-archives" href="/archives">
+              <i class="iconfont icon-archives">  
+            </i></a>     
+          
+              
+          
+            <a class="header-menu-link" id="header-menu-tags" href="/tags">
+              <i class="iconfont icon-tags">  
+            </i></a>     
+          
+              
+          
+            <a class="header-menu-link" id="header-menu-about" href="/about">
+              <i class="iconfont icon-about">  
+            </i></a>     
+          
+              
+          
+              <a class="header-menu-link" id="header-menu-search">
+                <i class="iconfont icon-search">  
+              </i></a>
+          
+                  
+    </div>  
+    
+  </nav>
+</header>
+
+   
+
+      <div class="container">       
+          
+          
+            <div class="container-inner">  
+          
+
+          <article class="post">
+  
+	
+<div class="post-header">
+	<p class="post-title">	
+		理解JavaScript：像引擎一样去思考
+	</p>
+
+	<div class="post-info">	
+		<span class="post-info-entry">
+			Aug 02, 2018
+		</span>
+
+		
+		
+			<i class="iconfont icon-words"></i>
+			<span class="post-info-entry">2436
+			</span>
+		
+	</div>
+</div>
+	
+
+
+	  <div class="typo post-content slideDownMin">
+
+		
+
+			
+					<p>使用一段时间JavaScript以后，你肯定会听说过引擎这个概念，知道鼎鼎大名的Google<a href="https://v8.dev/" target="_blank" rel="noopener">V8</a>引擎还有就是Mozilla的<a href="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey" target="_blank" rel="noopener">SpiderMonkey</a>；你也应该听说过JavaScript是单线程的，因此一次只能处理一件事情或者说一段代码；并且这门神奇的语言是编译语言，代码从被编译到执行之间的时间间隔短的不像样子。</p>
+<p>但是如果想要知其所以然，弄懂JavaScript引擎是如何工作的，并学会像它一样去思考，那么就需要了解更多相关的概念，比如今天要谈到的内存堆(memory heap)啦，回调队列(callback queue)啦，还有调用堆栈(call stack)啦这些光听名字就觉得很难懂的东西(其实并没有你想象的那么难懂)。</p>
+<p>在这篇文章里，我会试着用最简单的语言解释JavaScript引擎的工作原理(但是在对比了很多资料以后我发现这好像很困难)。</p>
+<p>(不过我会尽力的(ง๑ •̀_•́)ง)</p>
+<a id="more"></a>
+<h3 id="先举个🌰"><a href="#先举个🌰" class="headerlink" title="先举个🌰"></a>先举个🌰</h3><p>先看一下下面两段代码，你觉得它们执行的结果各自是什么？</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> scope = <span class="string">"global scope"</span>;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">checkscope</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> scope = <span class="string">"local scope"</span>;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">f</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> scope;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> f();</span><br><span class="line">&#125;</span><br><span class="line">checkscope();</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> scope = <span class="string">"global scope"</span>;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">checkscope</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> scope = <span class="string">"local scope"</span>;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">f</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> scope;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> f;</span><br><span class="line">&#125;</span><br><span class="line">checkscope()();</span><br></pre></td></tr></table></figure>
+<p>如果你知道作用域链是如何工作的就会知道上面两段代码都会返回”local scope”。</p>
+<p>虽然结果一样，但是引擎在执行这两段代码的时候却经历了不同的过程。希望在看完这篇文章后，你可以理解这其中的差异。</p>
+<h3 id="调用堆栈"><a href="#调用堆栈" class="headerlink" title="调用堆栈"></a>调用堆栈</h3><p>现今比较流行的引擎应该是V8了，因为Chrome和Node.js都在使用它。不如就用它举例，尝试解释一下JavaSript引擎的工作原理吧。</p>
+<p>V8引擎主要有两个组成部分：内存堆和调用堆栈。</p>
+<ul>
+<li>内存堆是分配内存的地方(当然了)。为变量或者对象分配内存都发生在这里。</li>
+<li>调用堆栈是在程序执行时，引擎用来追踪当前正在执行的代码的地方。</li>
+</ul>
+<p>调用堆栈本身就是一个数据结构：堆栈。因此我们可以联想到，在程序执行时某些东西会被推入而后又因为某些原因被弹出堆栈，顺序则是先进来的后出(First In Last Out)，后进来的先出。</p>
+<p>那到底是什么被推入和弹出了呢？</p>
+<p>答案是：正在执行的函数。也就是说，引擎把当前正在执行的函数推入调用堆栈用来跟踪程序执行的进程，当函数执行完毕后就会被清理掉。</p>
+<p>比如，执行下面这段代码的时候：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">x</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x * <span class="number">2</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params">y</span>) </span>&#123;</span><br><span class="line">    y = y * (<span class="number">-1</span>);</span><br><span class="line">    <span class="keyword">var</span> r = foo(y);</span><br><span class="line">    <span class="built_in">console</span>.log(r);</span><br><span class="line">&#125;</span><br><span class="line">bar(<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+<p>引擎会这样使用调用堆栈来跟踪程序的进程：</p>
+<img src="/2018/08/02/understanding-javascript-think-like-an-engine/call_stack.png">
+<p>在这里需要普及一个专有名词：被推入调用堆栈的东西的官方名字是栈帧(stack frame)。栈帧中包含传入函数的参数和函数的局部变量。</p>
+<p>此外，引擎对栈帧的数量是有限制的，V8允许的栈帧最多是16000个，否则引擎就会报错(Max Stack Error Reached)，并开始减少帧的数量。</p>
+<p>这一点还是很值得注意的，因为如果堆栈仍有帧的话，浏览器就无法去做其他的事情。你的App的用户会觉得浏览器“卡顿了”，UI变得不流畅顺滑了。因此，如果调用堆栈里面的栈帧太多或者某一个栈帧需要消耗很长的时间才能完成，会造成浏览器长时间未响应，然后多数浏览器都会询问用户是否要等待还是要强制关闭当前的页面。如此用户体验就无从谈起了。</p>
+<p>至于这个问题的解决方法嘛，你一定也听说过 – 异步回调。</p>
+<h3 id="回调队列"><a href="#回调队列" class="headerlink" title="回调队列"></a>回调队列</h3><p>如果说引擎中的调用堆栈(call stack)实现了JavaScript的单线程(single-threaded)的话，回调队列(callback queue)就被用来处理异步行为(asynchronous behaviors)。在MDN的文档中，回调队列也被称作消息队列(message queue)。不论你怎么称呼它，它的本质就是一个消息列表，每条消息都有一个相关的函数。</p>
+<p>需要注意的是，创建一条消息需要满足两个条件：1)接收到一个异步事件(用户点击某个按钮，或者收到了http请求返回数据)，并且2)该事件绑定了事件处理函数/回调函数。</p>
+<p>根据JavaScript单线程的特点：如果当前有函数没有执行完(调用堆栈不为空)，这个过程就不会被中断，其他待执行的代码要等到堆栈为空的时候才会被推入堆栈中执行。因此，只有调用堆栈为空时，才会开始处理回调队列中的消息，按时间顺序从早到晚执行。最早创建的消息会从队列中被移除，并执行它关联的函数。任何时候执行函数都会创建栈帧，因此这里又会出现上一节提到的场景。直到调用堆栈再次为空，才会处理回调队列里的下一条消息。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li><a href="https://medium.com/@gaurav.pandvia/understanding-javascript-function-executions-tasks-event-loop-call-stack-more-part-1-5683dea1f5ec" target="_blank" rel="noopener">Understanding Javascript Function Executions — Call Stack, Event Loop, Tasks &amp; more</a></li>
+<li><a href="https://www.valentinog.com/blog/js-execution-context-call-stack/#JavaScript_What_Is_The_Execution_Context_What_Is_The_Call_Stack" target="_blank" rel="noopener">JavaScript: What Is The Execution Context? What Is The Call Stack?</a></li>
+<li><a href="https://github.com/mqyqingfeng/Blog/issues/4" target="_blank" rel="noopener">JavaScript深入之执行上下文栈</a></li>
+<li><a href="https://segmentfault.com/a/1190000010360316" target="_blank" rel="noopener">浅析javascript调用栈</a></li>
+<li><a href="https://medium.freecodecamp.org/understanding-the-core-of-nodejs-the-powerful-chrome-v8-engine-79e7eb8af964" target="_blank" rel="noopener">Understanding How the Chrome V8 Engine Translates JavaScript into Machine Code</a></li>
+<li><a href="https://www.youtube.com/watch?v=p-iiEDtpy6I" target="_blank" rel="noopener">Franziska Hinkelmann: JavaScript engines - how do they even? | JSConf EU 2017</a></li>
+</ul>
+
+			
+	  </div>
+
+
+	<div class="post-footer">
+
+
+  <div class="post-footer-other">
+       
+    
+      <span class="post-footer-item">
+        <span class="share-btn">
+	<span class="iconfont icon-share"></span>
+</span>
+<div class="-mob-share sildeUpMin">
+	<ul class="-mob-inner">
+	   			             
+        <li class="iconfont 
+		icon-share-qq 
+		-mob-share-qq 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-weixin 
+		-mob-share-weixin 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-weibo 
+		-mob-share-weibo 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-douban 
+		-mob-share-douban 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-facebook 
+		-mob-share-facebook 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-twitter 
+		-mob-share-twitter 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-google 
+		-mob-share-google 
+		-mob-share-link"></li>		
+   	   
+	</ul>
+</div>	
+
+
+<script id="-mob-share" src="https://f1.webshare.mob.com/code/mob-share.js?appkey=21d601593a1de"></script>
+      </span>  
+               
+  </div>  
+    
+
+
+  <div class="post-footer-meta">
+        	
+
+        
+          <i class="iconfont icon-tag"></i>     
+            <a class="tag-link" href="/tags/javscript/">javscript</a>    
+        	
+  </div>
+
+</div>
+
+
+<nav class="post-footer-nav">
+  <div class="post-footer-link">
+  
+  </div>
+  <div class="post-footer-link">
+    
+        <a href="/2018/08/10/understanding-javascript-object/" id="post-nav-newer" class="post-nav-link-wrap">
+          <strong class="post-nav-caption">newer</strong>
+             
+            <a class="post-nav-title" href="/2018/08/10/understanding-javascript-object/">
+            理解JavaScript：对象</a>
+        </a>
+    
+  </div>
+
+</nav>
+
+	
+
+</article>
+
+	<div class="toc-container">
+			<div class="toc-sidebar">
+			<p class="toc-title">
+				Contents
+			</p>
+			<div class="toc-list">
+				<ol class="toc-inner"><li class="toc-inner-item toc-inner-level-3"><a class="toc-inner-link" href="#先举个🌰"><span class="toc-inner-text">先举个🌰</span></a></li><li class="toc-inner-item toc-inner-level-3"><a class="toc-inner-link" href="#调用堆栈"><span class="toc-inner-text">调用堆栈</span></a></li><li class="toc-inner-item toc-inner-level-3"><a class="toc-inner-link" href="#回调队列"><span class="toc-inner-text">回调队列</span></a></li><li class="toc-inner-item toc-inner-level-3"><a class="toc-inner-link" href="#参考资料"><span class="toc-inner-text">参考资料</span></a></li></ol>
+			</div>
+		</div>
+	</div>
+
+
+          </div> 
+      </div>            
+    
+    <a id="page-backTop">
+      <span>
+        <i class="iconfont icon-backtotop"></i>
+      </span>
+    </a> 
+
+  
+    
+    <div class="search-container sildeUpMin">
+        <div class="search-header">
+            <input type="text" placeholder="Typing Something here." id="search-input" class="search-input">
+            <span class="search-cancel">
+                <i class="iconfont icon-cancel">
+            </i></span>
+        </div>
+        <div id="search-result" class="search-result"></div>
+    </div>
+ 
+     <div class="mobile-menu">      
+
+      
+      <img class="mobile-menu-icon" src="/images/favicon.png">   
+      
+
+         
+            
+
+            <a class="mobile-menu-link" href="/">Home
+            </a>
+            
+         
+            
+
+            <a class="mobile-menu-link" href="/archives">Archives
+            </a>
+            
+         
+            
+
+            <a class="mobile-menu-link" href="/tags">Tags
+            </a>
+            
+         
+            
+
+            <a class="mobile-menu-link" href="/about">About
+            </a>
+            
+         
+                          
+
+            <a class="mobile-menu-link mobile-menu-search" href="#">Search </a>                 
+            
+         
+      
+</div>        
+    
+
+
+
+     
+    
+
+
+
+
+<footer id="footer">	    
+
+		
+		<div class="footer-copyright">
+		&copy;
+		
+		2018		
+	
+		Lemon
+		<br>
+
+		Theme  <a href="https://github.com/Lemonreds/hexo-theme-Nayo" target="_blank">Nayo</a>
+		</div>			
+	 
+</footer>   
+
+    <script src="/nayo.bundle.js"></script>           
+  </body>        
+</html>

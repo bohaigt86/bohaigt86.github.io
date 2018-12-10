@@ -143,7 +143,7 @@
 	</p></div>
 
 	<div class="article-bottom">
-		<a class="article-readmore" href="/2018/08/20/understanding-javascript-prototype/">閱讀更多</a> 	
+		<a class="article-readmore" href="/2018/08/20/understanding-javascript-prototype/">Continue</a> 	
 	</div>	
     
 </article>     
@@ -188,7 +188,49 @@
 	</p></div>
 
 	<div class="article-bottom">
-		<a class="article-readmore" href="/2018/08/10/understanding-javascript-object/">閱讀更多</a> 	
+		<a class="article-readmore" href="/2018/08/10/understanding-javascript-object/">Continue</a> 	
+	</div>	
+    
+</article>     
+     	
+    	  	
+  		
+    			
+
+<article class="article">		
+	   
+	<div class="article-header">
+	    
+		<a class="article-title" href="/2018/08/02/understanding-javascript-think-like-an-engine/">理解JavaScript：像引擎一样去思考</a>  
+	       
+		 
+
+		<div class="article-meta">
+			<time>Aug 02, 2018</time>
+			
+				<span class="iconfont icon-star"></span>
+				            
+						<a class="article-tag" href="/tags/javscript/">javscript</a>           
+				
+			
+		</div>
+	</div>
+
+
+	
+
+    
+	<div class="typo article-excerpt">	
+		
+			<p>使用一段时间JavaScript以后，你肯定会听说过引擎这个概念，知道鼎鼎大名的Google<a href="https://v8.dev/" target="_blank" rel="noopener">V8</a>引擎还有就是Mozilla的<a href="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey" target="_blank" rel="noopener">SpiderMonkey</a>；你也应该听说过JavaScript是单线程的，因此一次只能处理一件事情或者说一段代码；并且这门神奇的语言是编译语言，代码从被编译到执行之间的时间间隔短的不像样子。</p>
+<p>但是如果想要知其所以然，弄懂JavaScript引擎是如何工作的，并学会像它一样去思考，那么就需要了解更多相关的概念，比如今天要谈到的内存堆(memory heap)啦，回调队列(callback queue)啦，还有调用堆栈(call stack)啦这些光听名字就觉得很难懂的东西(其实并没有你想象的那么难懂)。</p>
+<p>在这篇文章里，我会试着用最简单的语言解释JavaScript引擎的工作原理(但是在对比了很多资料以后我发现这好像很困难)。</p>
+<p>(不过我会尽力的(ง๑ •̀_•́)ง)</p>
+		  	  
+	</div>
+
+	<div class="article-bottom">
+		<a class="article-readmore" href="/2018/08/02/understanding-javascript-think-like-an-engine/">Continue</a> 	
 	</div>	
     
 </article>     
@@ -211,7 +253,7 @@
     
     <div class="search-container sildeUpMin">
         <div class="search-header">
-            <input type="text" placeholder="输入你想搜索的" id="search-input" class="search-input">
+            <input type="text" placeholder="Typing Something here." id="search-input" class="search-input">
             <span class="search-cancel">
                 <i class="iconfont icon-cancel">
             </i></span>
@@ -228,31 +270,31 @@
          
             
 
-            <a class="mobile-menu-link" href="/">首頁
+            <a class="mobile-menu-link" href="/">Home
             </a>
             
          
             
 
-            <a class="mobile-menu-link" href="/archives">歸檔
+            <a class="mobile-menu-link" href="/archives">Archives
             </a>
             
          
             
 
-            <a class="mobile-menu-link" href="/tags">標籤
+            <a class="mobile-menu-link" href="/tags">Tags
             </a>
             
          
             
 
-            <a class="mobile-menu-link" href="/about">關於
+            <a class="mobile-menu-link" href="/about">About
             </a>
             
          
                           
 
-            <a class="mobile-menu-link mobile-menu-search" href="#">搜索 </a>                 
+            <a class="mobile-menu-link mobile-menu-search" href="#">Search </a>                 
             
          
       
