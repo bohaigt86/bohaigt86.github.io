@@ -1,0 +1,359 @@
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
+<html>
+  <head><meta name="generator" content="Hexo 3.8.0">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  
+  
+  <title>  理解JavaScript：this |   Bohai的博客 </title>
+
+ 
+  
+    <link rel="icon" href="/images/favicon.png">
+  
+
+
+  <link rel="stylesheet" href="/nayo.min.css"> 
+</head>  
+  <body>   
+    
+      <header class="header">
+	
+  <nav class="header-inner">        
+
+    <span class="iconfont icon-menu mobile-toggle"></span>   	
+
+    <div class="header-logo">
+      <a href="/">
+        <img class="header-logo-img" src="/images/logo.png">
+      </a>
+    </div>
+
+    <div class="header-menu">          
+              
+          
+            <a class="header-menu-link" id="header-menu-home" href="/">
+              <i class="iconfont icon-home">  
+            </i></a>     
+          
+              
+          
+            <a class="header-menu-link" id="header-menu-archives" href="/archives">
+              <i class="iconfont icon-archives">  
+            </i></a>     
+          
+              
+          
+            <a class="header-menu-link" id="header-menu-tags" href="/tags">
+              <i class="iconfont icon-tags">  
+            </i></a>     
+          
+              
+          
+            <a class="header-menu-link" id="header-menu-about" href="/about">
+              <i class="iconfont icon-about">  
+            </i></a>     
+          
+              
+          
+              <a class="header-menu-link" id="header-menu-search">
+                <i class="iconfont icon-search">  
+              </i></a>
+          
+                  
+    </div>  
+    
+  </nav>
+</header>
+
+   
+
+      <div class="container">       
+          
+          
+            <div class="container-inner">  
+          
+
+          <article class="post">
+  
+	
+<div class="post-header">
+	<p class="post-title">	
+		理解JavaScript：this
+	</p>
+
+	<div class="post-info">	
+		<span class="post-info-entry">
+			Sep 27, 2018
+		</span>
+
+		
+		
+			<i class="iconfont icon-words"></i>
+			<span class="post-info-entry">4171
+			</span>
+		
+	</div>
+</div>
+	
+
+
+	  <div class="typo post-content slideDownMin">
+
+		
+
+			
+					<p>this关键字在JavaScript中算是最难以理解的机制之一了。初学者可能因为听说它很“复杂”和“难以理解”就想要对它避而远之了。如果真的是这样的话，那么它到底有没有用呢？值得我们花费很多精力去理解它吗？</p>
+<p>(有。值得。(ง๑ •̀_•́)ง)<br><a id="more"></a></p>
+<h3 id="什么是this？"><a href="#什么是this？" class="headerlink" title="什么是this？"></a>什么是this？</h3><p>当函数被调用时，会创建一个叫做“执行上下文(context)”的<code>对象</code>来记录一些有用的信息，比如函数的调用位置。this就是这个对象中记录的一个重要属性，用来表示在函数被调用时，它所在的执行上下文(对象)本身。this和上下文之间的这种绑定是在程序运行时进行的，而不是在函数声明时进行的。因此决定this的值的，不是函数的声明位置，而是函数的调用位置和方式。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br><span class="line">foo();  <span class="comment">// 在非严格模式下，this的值是Window对象也就是全局上下文(global context)</span></span><br><span class="line">        <span class="comment">// 在严格模式下，this的值是undefined</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> bar = &#123;</span><br><span class="line">    foo: foo</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">bar.foo();  <span class="comment">// this的值是对bar的引用</span></span><br></pre></td></tr></table></figure>
+<p>在实际应用中，通过this关键字，我们可以在不同的执行上下文中重复使用函数和方法。换句话说，this允许我们在调用函数或方法时决定应该引用哪个执行上下文对象(context object)。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">whereAmI</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.name);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> name = <span class="string">'Global'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">    name: <span class="string">'obj'</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// 在不同的执行上下文环境中重复使用函数</span></span><br><span class="line">whereAmI();  <span class="comment">// 'Global'，在全局作用域中调用函数</span></span><br><span class="line">whereAmI.call(obj);  <span class="comment">// 'obj'，在obj对象的上下文中调用函数</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>this提供了一种更优雅的方式来传递一个对象引用，因此可以将API设计得更加易于复用。</p>
+<p>当我们使用对象和原型时，会越发感觉到this允许函数自动引用合适的执行上下文对于设计代码有多重要。</p>
+<p>我们在一开始提到过，this的值是在函数调用时的调用位置决定的。下面让我们来具体的了解一下这个机制。</p>
+<h3 id="什么又是调用位置？"><a href="#什么又是调用位置？" class="headerlink" title="什么又是调用位置？"></a>什么又是调用位置？</h3><h3 id="判断this绑定的规则"><a href="#判断this绑定的规则" class="headerlink" title="判断this绑定的规则"></a>判断this绑定的规则</h3><p>我们现在来看一下调用位置是如何决定this绑定的对象的。</p>
+<h4 id="隐式绑定"><a href="#隐式绑定" class="headerlink" title="隐式绑定"></a>隐式绑定</h4><p>当函数被调用时，它被某一个对象“拥有”或者“包含”，则会出现this的隐式绑定。</p>
+<p>先来看下面这段代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.a);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">    a: <span class="number">2</span>,</span><br><span class="line">    foo: foo</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">obj.foo();  <span class="comment">// 2，执行上下文是obj而不是Window</span></span><br></pre></td></tr></table></figure>
+<p>尽管foo函数不属于obj对象，但是在它被调用时，调用位置却是以obj作为执行上下文去引用函数的。我们刚才提到的函数在被调用时，被某一个对象“拥有”或者“包含”就是这个意思。</p>
+<p>代码中的foo()被调用时，前面也确实增加了对obj的引用，使得函数引用有了(非全局)上下文对象。此时，隐式绑定规则会把函数调用中的this绑定到这个上下文对象。</p>
+<p>下面，将前面的代码修改的复杂一些：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.a);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> obj2 = &#123;</span><br><span class="line">    a: <span class="number">4</span>,</span><br><span class="line">    foo: foo</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">    a: <span class="number">2</span>,</span><br><span class="line">    obj2: obj2</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">obj.obj2.foo();  <span class="comment">// 4，this绑定.(dot notation)左边的对象</span></span><br></pre></td></tr></table></figure>
+<p>在这种情况下，如果想要分辨出this到底绑定了哪个上下文，只需要看.的左边就可以了。换句话说，对象属性引用链中只有上一层或者说最后一层在调用位置中起作用。</p>
+<h5 id="隐式绑定的问题"><a href="#隐式绑定的问题" class="headerlink" title="隐式绑定的问题"></a>隐式绑定的问题</h5><p>有时候，隐式绑定会出现意外，被隐式绑定的函数会出现丢失绑定的情况，this被绑定到了全局上下文中或者undefined上。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.a);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">    a: <span class="number">2</span>,</span><br><span class="line">    foo: foo</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> bar = obj.foo;  <span class="comment">// 执行上下文是在函数调用时生成的，因此这里并没有上下文，只是bar引用了foo函数本身</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> a = <span class="string">"global"</span>;</span><br><span class="line"></span><br><span class="line">bar();  <span class="comment">// "global"</span></span><br></pre></td></tr></table></figure>
+<p>在这段代码里，bar是obj.foo的一个引用没错，但是它引用的不是被obj执行上下文“包含”的foo函数，而是foo函数本身。因此this被默认绑定到了全局上下文中或者undefined，具体是哪一个要取决于是否是在严格模式下。</p>
+<p>此外，传入回调函数时，也会出现类似情况。这是因为参数传递其实就是一种隐式赋值，所以当函数被当作参数传递时，也会被隐式赋值。赋值的时候没有调用任何函数，因此也不会生成执行上下文，原以为this会绑定的对象就像丢失了一样。</p>
+<p>至此，我们了解了为了使用隐式绑定规则，需要在对象内部包含一个指向函数的属性，并通过这个属性间接引用函数，从而把this间接地绑定到这个对象上。</p>
+<h4 id="显示绑定"><a href="#显示绑定" class="headerlink" title="显示绑定"></a>显示绑定</h4><p>如果我们有这样一段代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.a);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> foo = &#123;</span><br><span class="line">    a: <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果对象foo并没有内部属性引用bar函数的话，我们如何才能在调用bar函数时，让this绑定到foo呢？这里就需要使用<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call" target="_blank" rel="noopener">Function.prototype.call()</a>或者<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply" target="_blank" rel="noopener">Function.prototype.apply()</a>了。JavaScript中基本每一个函数都包含这样两个方法，它们让我们可以在调用函数时指定执行上下文。这个功能是不是很👍呢？</p>
+<p>因此，我们可以这样：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.a);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> foo = &#123;</span><br><span class="line">    a: <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">bar.call(foo);  <span class="comment">// 2</span></span><br><span class="line">bar.apply(foo);  <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+<p>通过bar.call()或bar.apply()，我们强制将this和foo绑定在一起。</p>
+<p>借助显式绑定我们可以实现<code>硬绑定</code>，将this和指定的上下文对象绑定在一起，并且不会再出现前一篇文章中提及的this意外绑定到全局上下文或者undefined这样的意外了。</p>
+<p>起初的想法是这样的：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.a);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">doBar</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    bar.call(foo);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> foo = &#123;</span><br><span class="line">    a: <span class="number">2</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> a = <span class="string">'global'</span>;</span><br><span class="line"></span><br><span class="line">doBar();  <span class="comment">// 2</span></span><br><span class="line">doBar.call(<span class="built_in">window</span>);  <span class="comment">// 2, 即使再想绑定到其他的上下文对象也是不可能的了</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>后来完善了一下这个想法，不仅可以指定函数调用时的执行上下文，还可以向函数传递参数：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params">input</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.a + <span class="string">" + "</span> + input + <span class="string">" = "</span> + (<span class="keyword">this</span>.a + input));</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.a + input;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">doBar</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> bar.apply(foo, <span class="built_in">arguments</span>);  <span class="comment">// 如果要向函数内传递参数就要用apply()l了</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> foo = &#123;</span><br><span class="line">    a: <span class="number">2</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> a = <span class="string">'global'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> plusFour = doBar(<span class="number">4</span>);  <span class="comment">// "2 + 4 = 6"</span></span><br><span class="line"><span class="built_in">console</span>.log(plusFour);  <span class="comment">// 6</span></span><br></pre></td></tr></table></figure>
+<p>由于这个方法后来被广泛采用，因此从ES5开始，引入了<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Function/bind" target="_blank" rel="noopener">Function.prototype.bind()</a>专门用来实现硬绑定。</p>
+<p>因此上一段代码可以简化为：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params">input</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.a + <span class="string">" + "</span> + input + <span class="string">" = "</span> + (<span class="keyword">this</span>.a + input));</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.a + input;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> foo = &#123;</span><br><span class="line">    a: <span class="number">2</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> doBar = bar.bind(foo);  <span class="comment">//bind()返回返回一个新函数，它会根据已指定的执行上下文调用函数</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> a = <span class="string">'global'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> plusFour = doBar(<span class="number">4</span>);  <span class="comment">// "2 + 4 = 6"</span></span><br><span class="line"><span class="built_in">console</span>.log(plusFour);  <span class="comment">// 6</span></span><br></pre></td></tr></table></figure>
+<h4 id="New绑定"><a href="#New绑定" class="headerlink" title="New绑定"></a>New绑定</h4><p>在解释New绑定之前，先要说明一下JavaScript中的构造函数(constructor)。构造函数就是普通的函数被New操作符调用了而已。构造函数和其他函数最直观的差别可能就是函数名首字母大写。其实这只是人为的规定，为了方便区分将会用来创建对象的“构造函数”和其他函数。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// 声明一个“构造函数”的时候首字母故意没有大写</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">cat</span>(<span class="params">name</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.name = name;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//依然能够创建对象</span></span><br><span class="line"><span class="keyword">var</span> myCat = <span class="keyword">new</span> cat(“huahua”);</span><br><span class="line"><span class="built_in">console</span>.log(myCat.name);  <span class="comment">//“huahua”</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>因此将“构造函数”理解为“函数被New构造调用”可能更合理一些。</p>
+<p>当函数被New调用时，是如何绑定this的呢？<br>我们以下面这段代码为例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">C</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> o = <span class="keyword">new</span> C();</span><br></pre></td></tr></table></figure>
+<p>new C()会完成以下操作：</p>
+<ul>
+<li><p>新建一个空实例对象</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> o = <span class="keyword">new</span> <span class="built_in">Object</span>(<span class="literal">null</span>);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将这个实例对象通过[[prototype]]和构造函数的原型对象相连</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">o._proto_ = C.prototype;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将this绑定到这个实例对象</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C.call(o);</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>这里的第三步就是New调用函数可以绑定this关键字的原因。</p>
+
+			
+	  </div>
+
+
+	<div class="post-footer">
+
+
+  <div class="post-footer-other">
+       
+    
+      <span class="post-footer-item">
+        <span class="share-btn">
+	<span class="iconfont icon-share"></span>
+</span>
+<div class="-mob-share sildeUpMin">
+	<ul class="-mob-inner">
+	   			             
+        <li class="iconfont 
+		icon-share-qq 
+		-mob-share-qq 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-weixin 
+		-mob-share-weixin 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-weibo 
+		-mob-share-weibo 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-douban 
+		-mob-share-douban 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-facebook 
+		-mob-share-facebook 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-twitter 
+		-mob-share-twitter 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-google 
+		-mob-share-google 
+		-mob-share-link"></li>		
+   	   
+	</ul>
+</div>	
+
+
+<script id="-mob-share" src="https://f1.webshare.mob.com/code/mob-share.js?appkey=21d601593a1de"></script>
+      </span>  
+               
+  </div>  
+    
+
+
+  <div class="post-footer-meta">
+        	
+
+        
+          <i class="iconfont icon-tag"></i>     
+            <a class="tag-link" href="/tags/javascript/">javascript</a>    
+        	
+  </div>
+
+</div>
+
+
+<nav class="post-footer-nav">
+  <div class="post-footer-link">
+  
+      <a href="/2018/09/04/understanding-javascript-inheritance-prototypical-inheritance/" id="post-nav-older" class="post-nav-link-wrap">
+        <strong class="post-nav-caption">older</strong>
+        
+          <a class="post-nav-title" href="/2018/09/04/understanding-javascript-inheritance-prototypical-inheritance/">
+          理解JavaScript：继承</a>
+      </a>
+  
+  </div>
+  <div class="post-footer-link">
+    
+  </div>
+
+</nav>
+
+	
+
+</article>
+
+	<div class="toc-container">
+			<div class="toc-sidebar">
+			<p class="toc-title">
+				CONTENT
+			</p>
+			<div class="toc-list">
+				<ol class="toc-inner"><li class="toc-inner-item toc-inner-level-3"><a class="toc-inner-link" href="#什么是this？"><span class="toc-inner-text">什么是this？</span></a></li><li class="toc-inner-item toc-inner-level-3"><a class="toc-inner-link" href="#什么又是调用位置？"><span class="toc-inner-text">什么又是调用位置？</span></a></li><li class="toc-inner-item toc-inner-level-3"><a class="toc-inner-link" href="#判断this绑定的规则"><span class="toc-inner-text">判断this绑定的规则</span></a><ol class="toc-inner-child"><li class="toc-inner-item toc-inner-level-4"><a class="toc-inner-link" href="#隐式绑定"><span class="toc-inner-text">隐式绑定</span></a><ol class="toc-inner-child"><li class="toc-inner-item toc-inner-level-5"><a class="toc-inner-link" href="#隐式绑定的问题"><span class="toc-inner-text">隐式绑定的问题</span></a></li></ol></li><li class="toc-inner-item toc-inner-level-4"><a class="toc-inner-link" href="#显示绑定"><span class="toc-inner-text">显示绑定</span></a></li><li class="toc-inner-item toc-inner-level-4"><a class="toc-inner-link" href="#New绑定"><span class="toc-inner-text">New绑定</span></a></li></ol></li></ol>
+			</div>
+		</div>
+	</div>
+
+
+          </div> 
+      </div>            
+    
+    <a id="page-backTop">
+      <span>
+        <i class="iconfont icon-backtotop"></i>
+      </span>
+    </a> 
+
+  
+    
+    <div class="search-container sildeUpMin">
+        <div class="search-header">
+            <input type="text" placeholder="输入你想搜索的" id="search-input" class="search-input">
+            <span class="search-cancel">
+                <i class="iconfont icon-cancel">
+            </i></span>
+        </div>
+        <div id="search-result" class="search-result"></div>
+    </div>
+ 
+     <div class="mobile-menu">      
+
+      
+      <img class="mobile-menu-icon" src="/images/favicon.png">   
+      
+
+         
+            
+
+            <a class="mobile-menu-link" href="/">首页
+            </a>
+            
+         
+            
+
+            <a class="mobile-menu-link" href="/archives">归档
+            </a>
+            
+         
+            
+
+            <a class="mobile-menu-link" href="/tags">标签
+            </a>
+            
+         
+            
+
+            <a class="mobile-menu-link" href="/about">关于
+            </a>
+            
+         
+                          
+
+            <a class="mobile-menu-link mobile-menu-search" href="#">搜索 </a>                 
+            
+         
+      
+</div>        
+    
+
+
+
+     
+    
+
+
+
+
+<footer id="footer">	    
+
+		
+		<div class="footer-copyright">
+		&copy;
+				
+		2018-
+		
+		2019		
+	
+		Lemon
+		<br>
+
+		Theme  <a href="https://github.com/Lemonreds/hexo-theme-Nayo" target="_blank">Nayo</a>
+		</div>			
+	 
+</footer>   
+
+    <script src="/nayo.bundle.js"></script>           
+  </body>        
+</html>

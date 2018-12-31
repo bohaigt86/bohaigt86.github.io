@@ -1,0 +1,330 @@
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
+<html>
+  <head><meta name="generator" content="Hexo 3.8.0">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  
+  
+  <title>  理解JavaScript：继承 |   Bohai的博客 </title>
+
+ 
+  
+    <link rel="icon" href="/images/favicon.png">
+  
+
+
+  <link rel="stylesheet" href="/nayo.min.css"> 
+</head>  
+  <body>   
+    
+      <header class="header">
+	
+  <nav class="header-inner">        
+
+    <span class="iconfont icon-menu mobile-toggle"></span>   	
+
+    <div class="header-logo">
+      <a href="/">
+        <img class="header-logo-img" src="/images/logo.png">
+      </a>
+    </div>
+
+    <div class="header-menu">          
+              
+          
+            <a class="header-menu-link" id="header-menu-home" href="/">
+              <i class="iconfont icon-home">  
+            </i></a>     
+          
+              
+          
+            <a class="header-menu-link" id="header-menu-archives" href="/archives">
+              <i class="iconfont icon-archives">  
+            </i></a>     
+          
+              
+          
+            <a class="header-menu-link" id="header-menu-tags" href="/tags">
+              <i class="iconfont icon-tags">  
+            </i></a>     
+          
+              
+          
+            <a class="header-menu-link" id="header-menu-about" href="/about">
+              <i class="iconfont icon-about">  
+            </i></a>     
+          
+              
+          
+              <a class="header-menu-link" id="header-menu-search">
+                <i class="iconfont icon-search">  
+              </i></a>
+          
+                  
+    </div>  
+    
+  </nav>
+</header>
+
+   
+
+      <div class="container">       
+          
+          
+            <div class="container-inner">  
+          
+
+          <article class="post">
+  
+	
+<div class="post-header">
+	<p class="post-title">	
+		理解JavaScript：继承
+	</p>
+
+	<div class="post-info">	
+		<span class="post-info-entry">
+			Sep 04, 2018
+		</span>
+
+		
+		
+			<i class="iconfont icon-words"></i>
+			<span class="post-info-entry">3581
+			</span>
+		
+	</div>
+</div>
+	
+
+
+	  <div class="typo post-content slideDownMin">
+
+		
+
+			
+					<p>对于有基于类的语言经验 (如 Java 或 C++) 的开发人员来说，JavaScript 有点令人困惑，因为它是动态的，并且本身不提供一个class实现。（在 ES2015/ES6 中引入了class关键字，但只是语法糖，JavaScript 仍然是基于原型的）。</p>
+<p>当谈到继承时，JavaScript 只有一种结构：对象。每个实例对象（object ）都有一个私有属性（称之为<strong>proto</strong>）指向它的原型对象（prototype）。该原型对象也有一个自己的原型对象(<strong>proto</strong>) ，层层向上直到一个对象的原型对象为 null。根据定义，null 没有原型，并作为这个原型链中的最后一个环节。</p>
+<p>几乎所有 JavaScript 中的对象都是位于原型链顶端的Object的实例。</p>
+<p>尽管这种原型继承通常被认为是JavaScript的弱点之一，但是原型继承模型本身实际上比经典模型更强大。例如，在原型模型的基础上构建经典模型相当简单。<br><a id="more"></a></p>
+<h3 id="基于原型链的继承"><a href="#基于原型链的继承" class="headerlink" title="基于原型链的继承"></a>基于原型链的继承</h3><p>我们在前面说过JavaScript是基于原型的语言。和其他面向对象语言不同，JavaScript依靠原型链实现继承。当我翻阅参考书和网络资源的时候发现，当谈到如何实现继承的时候，多数时间大家关注的其实是如何有效的利用原型链。</p>
+<p>在探讨原型链时，我们提到单纯的依靠<code>Child.prototype = new Parent()</code>来解决属性和方法的继承会遇到两个主要问题。第一，将Parent类的实例赋给Child.prototype后，原先的实例属性变成了原型属性，本来希望实例自己保存的属性，变成了共享属性。第二个问题是：在创建Child类型的实例时，不能向Parent的构造函数中传递参数。</p>
+<p>有没有什么方法能有效的解决这两个问题呢？</p>
+<h4 id="借用构造函数-原型组合继承"><a href="#借用构造函数-原型组合继承" class="headerlink" title="借用构造函数+原型组合继承"></a>借用构造函数+原型组合继承</h4><p>这看起来是目前最流行的一种实现继承的方法。它同时解决了刚才提到的两个问题。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Parent</span>(<span class="params">value</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.value = value;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Parent.prototype.getValue = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">this</span>.value);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Child</span>(<span class="params">value, childValue</span>) </span>&#123;</span><br><span class="line">  <span class="comment">//在Child构造函数内部调用Parent构造函数</span></span><br><span class="line">  Parent.call(<span class="keyword">this</span>, value);</span><br><span class="line">  <span class="keyword">this</span>.childValue = childValue;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//重写Child.prototype并将其和Parent.prototype连接起来</span></span><br><span class="line">Child.prototype = <span class="built_in">Object</span>.create(Parent.prototype);</span><br><span class="line">Child.prototype.getChildValue = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">this</span>.childValue);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> obj = <span class="keyword">new</span> Child(<span class="string">"a"</span>, <span class="string">"b"</span>);</span><br><span class="line"></span><br><span class="line">obj.getValue();  <span class="comment">//"a"</span></span><br><span class="line">obj.getChildValue();  <span class="comment">//"b"</span></span><br></pre></td></tr></table></figure>
+<p>这里的重点是<code>Child.prototype = Object.create(Parent.prototype)</code>。在定义Child()时默认生成的Child.prototype并没有关联到Parent.prototype，因此我们需要用Object.create()返回的对象取代它。Object.create()会创建一个新对象，并把新对象内部的[[ Prototype ]]关联到指定的对象。由于没有通过调用构造函数来建立连接，因此不存在实例属性变成了原型属性的问题。这样原型链就建好了。但是需要注意的是，这时Child.prototype.constructor就不再指向Child构造函数了，因此如果有必要的话，需要手动修复这个问题。</p>
+<p>借用构造函数<code>Parent.call(this, value)</code>解决了单纯依赖原型链会遇到的第二个问题，现在能在用Child构造函数创建实例时向Parent构造函数内传递参数了。比如像下面这样定义Child构造函数。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Child</span>(<span class="params">childValue</span>) </span>&#123;</span><br><span class="line">  <span class="comment">//在Child构造函数内部调用Parent构造函数</span></span><br><span class="line">  Parent.call(<span class="keyword">this</span>, <span class="string">"a"</span>);  <span class="comment">//在创建Child实例的时候给Parent构造函数传递参数</span></span><br><span class="line">  <span class="keyword">this</span>.childValue = childValue;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>无需复用的实例属性用构造函数处理，需要复用的函数用原型继承处理，两种模式组合使用刚好取长补短。</p>
+<h3 id="基于拷贝的继承"><a href="#基于拷贝的继承" class="headerlink" title="基于拷贝的继承"></a>基于拷贝的继承</h3><p>在查找资料的时候刚好看到了<a href="http://www.ruanyifeng.com/blog/2010/05/object-oriented_javascript_inheritance_continued.html" target="_blank" rel="noopener">阮一峰老师的博客</a>，里面提到了用浅拷贝和深拷贝来实现继承的方法提供了另一种思路。</p>
+<h4 id="浅拷贝"><a href="#浅拷贝" class="headerlink" title="浅拷贝"></a>浅拷贝</h4><p>浅拷贝会把源对象的属性拷贝到目标对象，且两者之间不存在引用或者“连接”。但是，在拷贝源对象中引用类型值的属性时，浅拷贝只能将属性的引用（内存地址）拷贝给目标对象。因此，在修改目标对象的此类属性时，改变会反应给源对象。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> Car = &#123;</span><br><span class="line">  wheels: <span class="number">4</span>,</span><br><span class="line">  colors: [<span class="string">"red"</span>, <span class="string">"black"</span>, <span class="string">"white"</span>]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">shallowCopy</span>(<span class="params">source</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> target = &#123;&#125;;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> source) &#123;</span><br><span class="line">    <span class="keyword">if</span> (source.hasOwnProperty(key)) &#123;</span><br><span class="line">      target[key] = source[key];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> target</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> raceCar = shallowCopy(Car);</span><br><span class="line"><span class="built_in">console</span>.log(raceCar.wheels);  <span class="comment">//4</span></span><br><span class="line"></span><br><span class="line">raceCar.colors.push(<span class="string">"yellow"</span>);</span><br><span class="line"><span class="comment">//Car的颜色种类也被改掉了！</span></span><br><span class="line"><span class="built_in">console</span>.log(Car.colors);  <span class="comment">//["red", "black", "white", "yellow"]</span></span><br><span class="line"></span><br><span class="line">raceCar.hp = <span class="number">1500</span>;</span><br><span class="line"><span class="built_in">console</span>.log(raceCar.hp);  <span class="comment">//1500</span></span><br></pre></td></tr></table></figure>
+<p>ES6中提供了专用的方法<code>Object.assign()</code>来将源对象中包含的可枚举的属性拷贝给目标对象。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> Car = &#123;</span><br><span class="line">  wheels: <span class="number">4</span>,</span><br><span class="line">  colors: [<span class="string">"red"</span>, <span class="string">"black"</span>, <span class="string">"white"</span>]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> raceCar = <span class="built_in">Object</span>.assign(&#123;&#125;, Car);</span><br><span class="line"><span class="built_in">console</span>.log(raceCar.wheels);  <span class="comment">//4</span></span><br><span class="line"></span><br><span class="line">raceCar.colors.push(<span class="string">"yellow"</span>);</span><br><span class="line"><span class="comment">//Car的颜色种类也被改掉了！</span></span><br><span class="line"><span class="built_in">console</span>.log(Car.colors);  <span class="comment">//["red", "black", "white", "yellow"]</span></span><br></pre></td></tr></table></figure>
+<p>但是在拷贝值是引用类型的属性时问题依然存在。</p>
+<h4 id="深拷贝"><a href="#深拷贝" class="headerlink" title="深拷贝"></a>深拷贝</h4><p>这种方式可以解决引用类型值属性无法真正被拷贝的问题。实现起来只要递归调用“浅拷贝”就可以了。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> Car = &#123;</span><br><span class="line">  wheels: <span class="number">4</span>,</span><br><span class="line">  colors: [<span class="string">"red"</span>, <span class="string">"black"</span>, <span class="string">"white"</span>]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">deepCopy</span>(<span class="params">source, target</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> target = target || &#123;&#125;;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> source) &#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">typeof</span> source[key] === <span class="string">"object"</span>) &#123;</span><br><span class="line">      target[key] = (source[key].constructor === <span class="built_in">Array</span>) ? [] : &#123;&#125;;</span><br><span class="line">      <span class="comment">//递归调用</span></span><br><span class="line">      deepCopy(source[key], target[key]);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      target[key] = source[key];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> target</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> raceCar = deepCopy(Car);</span><br><span class="line"><span class="built_in">console</span>.log(raceCar.wheels);  <span class="comment">//4</span></span><br><span class="line"></span><br><span class="line">raceCar.colors.push(<span class="string">"yellow"</span>);</span><br><span class="line"><span class="built_in">console</span>.log(raceCar.colors);  <span class="comment">//["red", "black", "white", "yellow"]</span></span><br><span class="line"><span class="comment">//这次Car的颜色种类没有被改掉！</span></span><br><span class="line"><span class="built_in">console</span>.log(Car.colors);  <span class="comment">//["red", "black", "white"]</span></span><br></pre></td></tr></table></figure>
+<p>修改目标对象中值为数组的属性，并没有影响到源对象。</p>
+
+			
+	  </div>
+
+
+	<div class="post-footer">
+
+
+  <div class="post-footer-other">
+       
+    
+      <span class="post-footer-item">
+        <span class="share-btn">
+	<span class="iconfont icon-share"></span>
+</span>
+<div class="-mob-share sildeUpMin">
+	<ul class="-mob-inner">
+	   			             
+        <li class="iconfont 
+		icon-share-qq 
+		-mob-share-qq 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-weixin 
+		-mob-share-weixin 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-weibo 
+		-mob-share-weibo 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-douban 
+		-mob-share-douban 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-facebook 
+		-mob-share-facebook 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-twitter 
+		-mob-share-twitter 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-google 
+		-mob-share-google 
+		-mob-share-link"></li>		
+   	   
+	</ul>
+</div>	
+
+
+<script id="-mob-share" src="https://f1.webshare.mob.com/code/mob-share.js?appkey=21d601593a1de"></script>
+      </span>  
+               
+  </div>  
+    
+
+
+  <div class="post-footer-meta">
+        	
+
+        	
+  </div>
+
+</div>
+
+
+<nav class="post-footer-nav">
+  <div class="post-footer-link">
+  
+      <a href="/2018/08/25/understanding-javascript-scope/" id="post-nav-older" class="post-nav-link-wrap">
+        <strong class="post-nav-caption">older</strong>
+        
+          <a class="post-nav-title" href="/2018/08/25/understanding-javascript-scope/">
+          理解JavaScript：作用域</a>
+      </a>
+  
+  </div>
+  <div class="post-footer-link">
+    
+        <a href="/2018/09/27/understanding-javascript-this/" id="post-nav-newer" class="post-nav-link-wrap">
+          <strong class="post-nav-caption">newer</strong>
+             
+            <a class="post-nav-title" href="/2018/09/27/understanding-javascript-this/">
+            理解JavaScript：this</a>
+        </a>
+    
+  </div>
+
+</nav>
+
+	
+
+</article>
+
+	<div class="toc-container">
+			<div class="toc-sidebar">
+			<p class="toc-title">
+				CONTENT
+			</p>
+			<div class="toc-list">
+				<ol class="toc-inner"><li class="toc-inner-item toc-inner-level-3"><a class="toc-inner-link" href="#基于原型链的继承"><span class="toc-inner-text">基于原型链的继承</span></a><ol class="toc-inner-child"><li class="toc-inner-item toc-inner-level-4"><a class="toc-inner-link" href="#借用构造函数-原型组合继承"><span class="toc-inner-text">借用构造函数+原型组合继承</span></a></li></ol></li><li class="toc-inner-item toc-inner-level-3"><a class="toc-inner-link" href="#基于拷贝的继承"><span class="toc-inner-text">基于拷贝的继承</span></a><ol class="toc-inner-child"><li class="toc-inner-item toc-inner-level-4"><a class="toc-inner-link" href="#浅拷贝"><span class="toc-inner-text">浅拷贝</span></a></li><li class="toc-inner-item toc-inner-level-4"><a class="toc-inner-link" href="#深拷贝"><span class="toc-inner-text">深拷贝</span></a></li></ol></li></ol>
+			</div>
+		</div>
+	</div>
+
+
+          </div> 
+      </div>            
+    
+    <a id="page-backTop">
+      <span>
+        <i class="iconfont icon-backtotop"></i>
+      </span>
+    </a> 
+
+  
+    
+    <div class="search-container sildeUpMin">
+        <div class="search-header">
+            <input type="text" placeholder="输入你想搜索的" id="search-input" class="search-input">
+            <span class="search-cancel">
+                <i class="iconfont icon-cancel">
+            </i></span>
+        </div>
+        <div id="search-result" class="search-result"></div>
+    </div>
+ 
+     <div class="mobile-menu">      
+
+      
+      <img class="mobile-menu-icon" src="/images/favicon.png">   
+      
+
+         
+            
+
+            <a class="mobile-menu-link" href="/">首页
+            </a>
+            
+         
+            
+
+            <a class="mobile-menu-link" href="/archives">归档
+            </a>
+            
+         
+            
+
+            <a class="mobile-menu-link" href="/tags">标签
+            </a>
+            
+         
+            
+
+            <a class="mobile-menu-link" href="/about">关于
+            </a>
+            
+         
+                          
+
+            <a class="mobile-menu-link mobile-menu-search" href="#">搜索 </a>                 
+            
+         
+      
+</div>        
+    
+
+
+
+     
+    
+
+
+
+
+<footer id="footer">	    
+
+		
+		<div class="footer-copyright">
+		&copy;
+				
+		2018-
+		
+		2019		
+	
+		Lemon
+		<br>
+
+		Theme  <a href="https://github.com/Lemonreds/hexo-theme-Nayo" target="_blank">Nayo</a>
+		</div>			
+	 
+</footer>   
+
+    <script src="/nayo.bundle.js"></script>           
+  </body>        
+</html>

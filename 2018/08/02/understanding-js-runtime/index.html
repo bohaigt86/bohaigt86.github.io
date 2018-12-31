@@ -1,0 +1,343 @@
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
+<html>
+  <head><meta name="generator" content="Hexo 3.8.0">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  
+  
+  <title>  理解JavaScript：单线程异步并发语言 |   Bohai的博客 </title>
+
+ 
+  
+    <link rel="icon" href="/images/favicon.png">
+  
+
+
+  <link rel="stylesheet" href="/nayo.min.css"> 
+<link rel="stylesheet" type="text/css" href="/assets/css/DPlayer.min.css"><script src="/assets/js/DPlayer.min.js"></script></head>  
+  <body>   
+    
+      <header class="header">
+	
+  <nav class="header-inner">        
+
+    <span class="iconfont icon-menu mobile-toggle"></span>   	
+
+    <div class="header-logo">
+      <a href="/">
+        <img class="header-logo-img" src="/images/logo.png">
+      </a>
+    </div>
+
+    <div class="header-menu">          
+              
+          
+            <a class="header-menu-link" id="header-menu-home" href="/">
+              <i class="iconfont icon-home">  
+            </i></a>     
+          
+              
+          
+            <a class="header-menu-link" id="header-menu-archives" href="/archives">
+              <i class="iconfont icon-archives">  
+            </i></a>     
+          
+              
+          
+            <a class="header-menu-link" id="header-menu-tags" href="/tags">
+              <i class="iconfont icon-tags">  
+            </i></a>     
+          
+              
+          
+            <a class="header-menu-link" id="header-menu-about" href="/about">
+              <i class="iconfont icon-about">  
+            </i></a>     
+          
+              
+          
+              <a class="header-menu-link" id="header-menu-search">
+                <i class="iconfont icon-search">  
+              </i></a>
+          
+                  
+    </div>  
+    
+  </nav>
+</header>
+
+   
+
+      <div class="container">       
+          
+          
+            <div class="container-inner">  
+          
+
+          <article class="post">
+  
+	
+<div class="post-header">
+	<p class="post-title">	
+		理解JavaScript：单线程异步并发语言
+	</p>
+
+	<div class="post-info">	
+		<span class="post-info-entry">
+			Aug 02, 2018
+		</span>
+
+		
+		
+			<i class="iconfont icon-words"></i>
+			<span class="post-info-entry">3219
+			</span>
+		
+	</div>
+</div>
+	
+
+
+	  <div class="typo post-content slideDownMin">
+
+		
+
+			
+					<p>近些年来，JavaScript变得越来越流行。你会发现无论是刚开始学习编程的学生或者是想要开发出丰富网页应用的开发者都在使用它。如果你也对JavaScript很感兴趣，想要深入学习它的特性，那么不如先来了解一些基础知识，比如：JavaScript是如何在浏览器中运行的？</p>
+<p>这就要从单线程说起了。<br><a id="more"></a></p>
+<h3 id="JavaScript是单线程的"><a href="#JavaScript是单线程的" class="headerlink" title="JavaScript是单线程的"></a>JavaScript是单线程的</h3><p>不同于很多主流语言，JavaScript是单线程(single-threaded)的，也就是说在程序运行时，一次只能处理一条指令，并且是顺序执行的。可是我们浏览网页时，因为只能使用一个线程负责处理所有的事情，像是滚动页面啦或者鼠标点击啦，所以如果某一个任务非常的耗时，那么它就会阻塞其它的任务。可能每个人都有过浏览器“卡了”或者“没反应了”的经历吧。</p>
+<p>所以说，JavaScript程序顺序执行是真的像字面意思一样从上到下一行一行的执行吗？为什么我们用过很复杂的网页App也从来没遇到浏览器“卡住了”的情况呢？<br>请记住这两个问题，我们来一个一个的解释。</p>
+<h3 id="JavaScript运行时-runtime"><a href="#JavaScript运行时-runtime" class="headerlink" title="JavaScript运行时(runtime)"></a>JavaScript运行时(runtime)</h3><p>想要正确的判断一段程序的执行过程，首先要明白JavaScript运行时。运行时严格地说有四个部分：1）内存堆，2）调用栈，3）回调队列和4）事件循环。</p>
+<p>内存堆是分配内存的地方，为变量或者对象分配内存都发生在这里。我们暂时不太需要关心内存分配。</p>
+<p>首先需要重点关注的是调用栈。</p>
+<h4 id="调用栈-call-stack"><a href="#调用栈-call-stack" class="headerlink" title="调用栈(call stack)"></a>调用栈(call stack)</h4><p>我们都知道栈是一个数据结构。栈允许推入(push)和弹出(pop)两种操作。保存数据时，最先推入的数据会去到栈底，最后推入的数据在栈顶。读取数据时会从栈顶开始弹出，因此最先保存的数据最后被读取。简单的说，就是后进先出，或者LIFO(Last In First Out)。这种形式的数据结构正好满足我们调用函数的方式：父函数调用子函数，父函数在前，子函数在后；返回时，子函数先返回，父函数后返回。</p>
+<p>以下面这段代码为例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"foo"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">baz</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    foo();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    baz();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">bar();</span><br></pre></td></tr></table></figure>
+<p>执行这段代码从第一个函数调用开始，也就是bar。因此首先进入堆栈的应该是函数bar()。因为bar会调用baz，因此baz()是第二个进入堆栈的。而后baz会调用foo，foo()第三个进入堆栈。foo会调用console.log，所以最后将console.log(“foo”)推入堆栈。</p>
+<p>当函数执行完毕返回值以后，就会被从栈顶弹出。因此，console.log(‘foo’)在执行完毕后会首先从栈顶弹出，接着依次是foo()，baz()，最后是bar()。</p>
+<p>用更感性的方法来解释这段代码的执行过程就是：</p>
+
+<p>实际上被推入调用堆栈的并不是函数，它有一个官方名字：栈帧(stack frame)。目前我们暂时只需要知道栈帧中保存的是函数调用时的相关信息(比如返回地址，传入的参数，本地变量和函数执行的上下文)就好。</p>
+<p>如果到此为止都能够接受的话，我们就来看一看更复杂的情况吧！代码中出现异步的时候，执行过程会有什么变化吗？</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"bar"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"foo"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">setTimeout(foo, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">bar();</span><br></pre></td></tr></table></figure>
+<p>console输出的结果是”bar foo”还是”foo bar”呢？还是先找到第一个函数调用：setTimeout(foo, 0)。嗯，延迟0秒调用foo。那就是马上执行喽？好的，立即输出”foo”。接下来调用bar，好的，输出”bar”。所以最后的结果应该是“foo bar”，应该没错！</p>
+<p>然而我们在实际运行这段代码之后得到的结果却是”bar foo”。</p>
+<p>怎么会这样！？</p>
+<p>这里就需要弄明白另外两个组件–回调队列和事件循环–是什么了。就算是这样，也还不够。因为这里还有浏览器提供的WebAPI在帮忙，比如发送http请求，监听DOM事件，以及setTimeout/setInterval延迟执行其实都是由这些WebAPI完成的。</p>
+<p>听上去好多新的名词，头一定大了吧。不要紧，其实很好理解的。请继续往下看。</p>
+<h4 id="浏览器不只有运行时，还提供WebAPI"><a href="#浏览器不只有运行时，还提供WebAPI" class="headerlink" title="浏览器不只有运行时，还提供WebAPI"></a>浏览器不只有运行时，还提供WebAPI</h4><p>JavaScript是单线程所以只有一个调用栈可用。没错。因此代只能一行一行的执行，也没错。不过WebAPI并不属于运行时，所以它们是异步的。你可以让它们在后台帮你做一些事情等完成的时候再返回一些值，同时你还能继续一行一行的执行代码。</p>
+<p>用上面的例子说明一下：seTimeout(foo, 0)是第一个函数调用，会立即创建一个它的栈帧推入调用栈。所谓的延迟执行说的是foo，所以foo会被送去WebAPI那边处理。这样setTimeout就执行完了，所以弹出栈帧。接着立刻调用bar，bar调用console.log(“bar”)，执行完毕，弹出栈帧。最后才调用foo，推入栈帧，调用console.log(“foo”)，执行完毕，弹出栈帧。</p>
+<p>为什么是这么个顺序呢？</p>
+<p>我们的例子中选择了一个比较特殊的时间跨度：0毫秒，其实0毫秒也好3000毫秒也好，都会被送去WebAPI中去记个时。时间到了以后怎么办呢，时间到了以后并不是立即调用foo这个回调函数，换句话说就是不会马上把foo推进调用栈里。我们都知道，调用栈不为空的话是不能推入新的任务的。所以这个延迟0毫秒，其实是说在0毫秒后(就是立刻马上喽)将调用函数添加到<em>回调队列</em>中等待下一步指示！</p>
+<p>哇！原来是这样的么！？</p>
+<h4 id="回调队列-callback-queue"><a href="#回调队列-callback-queue" class="headerlink" title="回调队列(callback queue)"></a>回调队列(callback queue)</h4><p>回调队列又叫做消息队列(message queue)，它暂时保管着被WebAPI丢进来的回调函数(比如我们刚提到的foo)关联的消息(message)。这些消息会按顺序排好队，等着调用栈处理它们所关联的回调函数。不过它自己不会去判断处理消息的时机。</p>
+<p>什么时候该将这些回调函数推入调用栈呢？这是事件循环的工作。</p>
+<h4 id="事件循环-event-loop"><a href="#事件循环-event-loop" class="headerlink" title="事件循环(event loop)"></a>事件循环(event loop)</h4><p>事件循环主要的指责就是盯着调用栈和回调队列。在调用栈为空的时候，把队列中的消息和它们所关联的回调函数按时间顺序推进调用栈。这里同样还是要遵循调用栈的机制，前一个消息没有完全处理完以前，不能推入后一个消息。</p>
+<p>下面让我们再一次感性的理解一下整个过程吧！</p>
+<div id="dplayer0" class="dplayer hexo-tag-dplayer-mark" style="margin-bottom: 20px;"></div><script>(function(){var player = new DPlayer({"container":document.getElementById("dplayer0"),"video":{"url":"https://www.youtube.com/watch?v=8aGhZQkoFbQ"}});window.dplayers||(window.dplayers=[]);window.dplayers.push(player);})()</script>
+<p>至此，你应该明白setTimeout中设置的延迟时间不是准确值，而是最小值。</p>
+<p>setTimetou(callback, 0) – “最快会在0毫秒后调用，但是可能会有延误”<br>setTimetou(callback, 3000) – “最快将在3000毫秒后调用，但是可能耽误更久”。</p>
+<p>只有在它们进入队列时，调用栈刚好是空的，才会准时执行。否则，就要继续等，时机的把控是由事件循环全权负责的。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li>墙裂推荐必看视频 <a href="https://www.youtube.com/watch?v=8aGhZQkoFbQ" target="_blank" rel="noopener">Philip Roberts: What the heck is the event loop anyway? | JSConf EU</a></li>
+<li>这篇文章总结的也很简单明了 <a href="https://itnext.io/how-javascript-works-in-browser-and-node-ab7d0d09ac2f" target="_blank" rel="noopener">How JavaScript works in browser and node?</a></li>
+</ul>
+
+			
+	  </div>
+
+
+	<div class="post-footer">
+
+
+  <div class="post-footer-other">
+       
+    
+      <span class="post-footer-item">
+        <span class="share-btn">
+	<span class="iconfont icon-share"></span>
+</span>
+<div class="-mob-share sildeUpMin">
+	<ul class="-mob-inner">
+	   			             
+        <li class="iconfont 
+		icon-share-qq 
+		-mob-share-qq 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-weixin 
+		-mob-share-weixin 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-weibo 
+		-mob-share-weibo 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-douban 
+		-mob-share-douban 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-facebook 
+		-mob-share-facebook 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-twitter 
+		-mob-share-twitter 
+		-mob-share-link"></li>		
+   	   			             
+        <li class="iconfont 
+		icon-share-google 
+		-mob-share-google 
+		-mob-share-link"></li>		
+   	   
+	</ul>
+</div>	
+
+
+<script id="-mob-share" src="https://f1.webshare.mob.com/code/mob-share.js?appkey=21d601593a1de"></script>
+      </span>  
+               
+  </div>  
+    
+
+
+  <div class="post-footer-meta">
+        	
+
+        
+          <i class="iconfont icon-tag"></i>     
+            <a class="tag-link" href="/tags/javscript/">javscript</a>    
+        	
+  </div>
+
+</div>
+
+
+<nav class="post-footer-nav">
+  <div class="post-footer-link">
+  
+  </div>
+  <div class="post-footer-link">
+    
+        <a href="/2018/08/10/understanding-javascript-object/" id="post-nav-newer" class="post-nav-link-wrap">
+          <strong class="post-nav-caption">newer</strong>
+             
+            <a class="post-nav-title" href="/2018/08/10/understanding-javascript-object/">
+            理解JavaScript：对象</a>
+        </a>
+    
+  </div>
+
+</nav>
+
+	
+
+</article>
+
+	<div class="toc-container">
+			<div class="toc-sidebar">
+			<p class="toc-title">
+				CONTENT
+			</p>
+			<div class="toc-list">
+				<ol class="toc-inner"><li class="toc-inner-item toc-inner-level-3"><a class="toc-inner-link" href="#JavaScript是单线程的"><span class="toc-inner-text">JavaScript是单线程的</span></a></li><li class="toc-inner-item toc-inner-level-3"><a class="toc-inner-link" href="#JavaScript运行时-runtime"><span class="toc-inner-text">JavaScript运行时(runtime)</span></a><ol class="toc-inner-child"><li class="toc-inner-item toc-inner-level-4"><a class="toc-inner-link" href="#调用栈-call-stack"><span class="toc-inner-text">调用栈(call stack)</span></a></li><li class="toc-inner-item toc-inner-level-4"><a class="toc-inner-link" href="#浏览器不只有运行时，还提供WebAPI"><span class="toc-inner-text">浏览器不只有运行时，还提供WebAPI</span></a></li><li class="toc-inner-item toc-inner-level-4"><a class="toc-inner-link" href="#回调队列-callback-queue"><span class="toc-inner-text">回调队列(callback queue)</span></a></li><li class="toc-inner-item toc-inner-level-4"><a class="toc-inner-link" href="#事件循环-event-loop"><span class="toc-inner-text">事件循环(event loop)</span></a></li></ol></li><li class="toc-inner-item toc-inner-level-3"><a class="toc-inner-link" href="#参考资料"><span class="toc-inner-text">参考资料</span></a></li></ol>
+			</div>
+		</div>
+	</div>
+
+
+          </div> 
+      </div>            
+    
+    <a id="page-backTop">
+      <span>
+        <i class="iconfont icon-backtotop"></i>
+      </span>
+    </a> 
+
+  
+    
+    <div class="search-container sildeUpMin">
+        <div class="search-header">
+            <input type="text" placeholder="输入你想搜索的" id="search-input" class="search-input">
+            <span class="search-cancel">
+                <i class="iconfont icon-cancel">
+            </i></span>
+        </div>
+        <div id="search-result" class="search-result"></div>
+    </div>
+ 
+     <div class="mobile-menu">      
+
+      
+      <img class="mobile-menu-icon" src="/images/favicon.png">   
+      
+
+         
+            
+
+            <a class="mobile-menu-link" href="/">首页
+            </a>
+            
+         
+            
+
+            <a class="mobile-menu-link" href="/archives">归档
+            </a>
+            
+         
+            
+
+            <a class="mobile-menu-link" href="/tags">标签
+            </a>
+            
+         
+            
+
+            <a class="mobile-menu-link" href="/about">关于
+            </a>
+            
+         
+                          
+
+            <a class="mobile-menu-link mobile-menu-search" href="#">搜索 </a>                 
+            
+         
+      
+</div>        
+    
+
+
+
+     
+    
+
+
+
+
+<footer id="footer">	    
+
+		
+		<div class="footer-copyright">
+		&copy;
+				
+		2018-
+		
+		2019		
+	
+		Lemon
+		<br>
+
+		Theme  <a href="https://github.com/Lemonreds/hexo-theme-Nayo" target="_blank">Nayo</a>
+		</div>			
+	 
+</footer>   
+
+    <script src="/nayo.bundle.js"></script>           
+  </body>        
+</html>
