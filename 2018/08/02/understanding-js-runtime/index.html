@@ -14,7 +14,7 @@
 
 
   <link rel="stylesheet" href="/nayo.min.css"> 
-<link rel="stylesheet" type="text/css" href="/assets/css/DPlayer.min.css"><script src="/assets/js/DPlayer.min.js"></script></head>  
+</head>  
   <body>   
     
       <header class="header">
@@ -90,7 +90,7 @@
 		
 		
 			<i class="iconfont icon-words"></i>
-			<span class="post-info-entry">3219
+			<span class="post-info-entry">3052
 			</span>
 		
 	</div>
@@ -116,7 +116,7 @@
 <p>执行这段代码从第一个函数调用开始，也就是bar。因此首先进入堆栈的应该是函数bar()。因为bar会调用baz，因此baz()是第二个进入堆栈的。而后baz会调用foo，foo()第三个进入堆栈。foo会调用console.log，所以最后将console.log(“foo”)推入堆栈。</p>
 <p>当函数执行完毕返回值以后，就会被从栈顶弹出。因此，console.log(‘foo’)在执行完毕后会首先从栈顶弹出，接着依次是foo()，baz()，最后是bar()。</p>
 <p>用更感性的方法来解释这段代码的执行过程就是：</p>
-
+<img src="/2018/08/02/understanding-js-runtime/call-stack-explaination.gif">
 <p>实际上被推入调用堆栈的并不是函数，它有一个官方名字：栈帧(stack frame)。目前我们暂时只需要知道栈帧中保存的是函数调用时的相关信息(比如返回地址，传入的参数，本地变量和函数执行的上下文)就好。</p>
 <p>如果到此为止都能够接受的话，我们就来看一看更复杂的情况吧！代码中出现异步的时候，执行过程会有什么变化吗？</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"bar"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"foo"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">setTimeout(foo, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">bar();</span><br></pre></td></tr></table></figure>
@@ -134,13 +134,15 @@
 <p>什么时候该将这些回调函数推入调用栈呢？这是事件循环的工作。</p>
 <h4 id="事件循环-event-loop"><a href="#事件循环-event-loop" class="headerlink" title="事件循环(event loop)"></a>事件循环(event loop)</h4><p>事件循环主要的指责就是盯着调用栈和回调队列。在调用栈为空的时候，把队列中的消息和它们所关联的回调函数按时间顺序推进调用栈。这里同样还是要遵循调用栈的机制，前一个消息没有完全处理完以前，不能推入后一个消息。</p>
 <p>下面让我们再一次感性的理解一下整个过程吧！</p>
-<div id="dplayer0" class="dplayer hexo-tag-dplayer-mark" style="margin-bottom: 20px;"></div><script>(function(){var player = new DPlayer({"container":document.getElementById("dplayer0"),"video":{"url":"https://www.youtube.com/watch?v=8aGhZQkoFbQ"}});window.dplayers||(window.dplayers=[]);window.dplayers.push(player);})()</script>
+<img src="/2018/08/02/understanding-js-runtime/event-loop-explaination.gif">
+<p><a href="http://latentflip.com/loupe/?code=!!!PGJ1dHRvbj5DbGljayBtZSE8L2J1dHRvbj4%3D" target="_blank" rel="noopener">或者亲自来试一下？</a></p>
 <p>至此，你应该明白setTimeout中设置的延迟时间不是准确值，而是最小值。</p>
-<p>setTimetou(callback, 0) – “最快会在0毫秒后调用，但是可能会有延误”<br>setTimetou(callback, 3000) – “最快将在3000毫秒后调用，但是可能耽误更久”。</p>
+<p>setTimetou(callback, 0) – “最快会在0毫秒后调用，但是可能会有延误”，或者理解为“等调用栈为空时再运行”可能更合适。<br>setTimetou(callback, 3000) – “最快将在3000毫秒后调用，但是可能耽误更久”。</p>
 <p>只有在它们进入队列时，调用栈刚好是空的，才会准时执行。否则，就要继续等，时机的把控是由事件循环全权负责的。</p>
 <h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
 <li>墙裂推荐必看视频 <a href="https://www.youtube.com/watch?v=8aGhZQkoFbQ" target="_blank" rel="noopener">Philip Roberts: What the heck is the event loop anyway? | JSConf EU</a></li>
 <li>这篇文章总结的也很简单明了 <a href="https://itnext.io/how-javascript-works-in-browser-and-node-ab7d0d09ac2f" target="_blank" rel="noopener">How JavaScript works in browser and node?</a></li>
+<li>运行时可视化工具来自 <a href="http://latentflip.com/loupe/?code=!!!PGJ1dHRvbj5DbGljayBtZSE8L2J1dHRvbj4%3D" target="_blank" rel="noopener">loupe</a></li>
 </ul>
 
 			
