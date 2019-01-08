@@ -84,7 +84,7 @@
 
 	<div class="post-info">	
 		<span class="post-info-entry">
-			Aug 02, 2018
+			Dec 20, 2018
 		</span>
 
 		
@@ -116,7 +116,7 @@
 <p>执行这段代码从第一个函数调用开始，也就是bar。因此首先进入堆栈的应该是函数bar()。因为bar会调用baz，因此baz()是第二个进入堆栈的。而后baz会调用foo，foo()第三个进入堆栈。foo会调用console.log，所以最后将console.log(“foo”)推入堆栈。</p>
 <p>当函数执行完毕返回值以后，就会被从栈顶弹出。因此，console.log(‘foo’)在执行完毕后会首先从栈顶弹出，接着依次是foo()，baz()，最后是bar()。</p>
 <p>用更感性的方法来解释这段代码的执行过程就是：</p>
-<img src="/2018/08/02/understanding-js-runtime/call-stack-explaination.gif">
+<img src="/2018/12/20/understanding-js-runtime/call-stack-explaination.gif">
 <p>实际上被推入调用堆栈的并不是函数，它有一个官方名字：栈帧(stack frame)。目前我们暂时只需要知道栈帧中保存的是函数调用时的相关信息(比如返回地址，传入的参数，本地变量和函数执行的上下文)就好。</p>
 <p>如果到此为止都能够接受的话，我们就来看一看更复杂的情况吧！代码中出现异步的时候，执行过程会有什么变化吗？</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"bar"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"foo"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">setTimeout(foo, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">bar();</span><br></pre></td></tr></table></figure>
@@ -134,7 +134,7 @@
 <p>什么时候该将这些回调函数推入调用栈呢？这是事件循环的工作。</p>
 <h4 id="事件循环-event-loop"><a href="#事件循环-event-loop" class="headerlink" title="事件循环(event loop)"></a>事件循环(event loop)</h4><p>事件循环主要的指责就是盯着调用栈和回调队列。在调用栈为空的时候，把队列中的消息和它们所关联的回调函数按时间顺序推进调用栈。这里同样还是要遵循调用栈的机制，前一个消息没有完全处理完以前，不能推入后一个消息。</p>
 <p>下面让我们再一次感性的理解一下整个过程吧！</p>
-<img src="/2018/08/02/understanding-js-runtime/event-loop-explaination.gif">
+<img src="/2018/12/20/understanding-js-runtime/event-loop-explaination.gif">
 <p><a href="http://latentflip.com/loupe/?code=!!!PGJ1dHRvbj5DbGljayBtZSE8L2J1dHRvbj4%3D" target="_blank" rel="noopener">或者亲自来试一下？</a></p>
 <p>至此，你应该明白setTimeout中设置的延迟时间不是准确值，而是最小值。</p>
 <p>setTimetou(callback, 0) – “最快会在0毫秒后调用，但是可能会有延误”，或者理解为“等调用栈为空时再运行”可能更合适。<br>setTimetou(callback, 3000) – “最快将在3000毫秒后调用，但是可能耽误更久”。</p>
@@ -223,15 +223,15 @@
 <nav class="post-footer-nav">
   <div class="post-footer-link">
   
+      <a href="/2018/09/27/understanding-javascript-this/" id="post-nav-older" class="post-nav-link-wrap">
+        <strong class="post-nav-caption">older</strong>
+        
+          <a class="post-nav-title" href="/2018/09/27/understanding-javascript-this/">
+          理解JavaScript：this</a>
+      </a>
+  
   </div>
   <div class="post-footer-link">
-    
-        <a href="/2018/08/10/understanding-javascript-object/" id="post-nav-newer" class="post-nav-link-wrap">
-          <strong class="post-nav-caption">newer</strong>
-             
-            <a class="post-nav-title" href="/2018/08/10/understanding-javascript-object/">
-            理解JavaScript：对象</a>
-        </a>
     
   </div>
 
@@ -244,7 +244,7 @@
 	<div class="toc-container">
 			<div class="toc-sidebar">
 			<p class="toc-title">
-				CONTENT
+				Contents
 			</p>
 			<div class="toc-list">
 				<ol class="toc-inner"><li class="toc-inner-item toc-inner-level-3"><a class="toc-inner-link" href="#JavaScript是单线程的"><span class="toc-inner-text">JavaScript是单线程的</span></a></li><li class="toc-inner-item toc-inner-level-3"><a class="toc-inner-link" href="#JavaScript运行时-runtime"><span class="toc-inner-text">JavaScript运行时(runtime)</span></a><ol class="toc-inner-child"><li class="toc-inner-item toc-inner-level-4"><a class="toc-inner-link" href="#调用栈-call-stack"><span class="toc-inner-text">调用栈(call stack)</span></a></li><li class="toc-inner-item toc-inner-level-4"><a class="toc-inner-link" href="#浏览器不只有运行时，还提供WebAPI"><span class="toc-inner-text">浏览器不只有运行时，还提供WebAPI</span></a></li><li class="toc-inner-item toc-inner-level-4"><a class="toc-inner-link" href="#回调队列-callback-queue"><span class="toc-inner-text">回调队列(callback queue)</span></a></li><li class="toc-inner-item toc-inner-level-4"><a class="toc-inner-link" href="#事件循环-event-loop"><span class="toc-inner-text">事件循环(event loop)</span></a></li></ol></li><li class="toc-inner-item toc-inner-level-3"><a class="toc-inner-link" href="#参考资料"><span class="toc-inner-text">参考资料</span></a></li></ol>
@@ -266,7 +266,7 @@
     
     <div class="search-container sildeUpMin">
         <div class="search-header">
-            <input type="text" placeholder="输入你想搜索的" id="search-input" class="search-input">
+            <input type="text" placeholder="Typing Something here." id="search-input" class="search-input">
             <span class="search-cancel">
                 <i class="iconfont icon-cancel">
             </i></span>
@@ -283,31 +283,31 @@
          
             
 
-            <a class="mobile-menu-link" href="/">首页
+            <a class="mobile-menu-link" href="/">Home
             </a>
             
          
             
 
-            <a class="mobile-menu-link" href="/archives">归档
+            <a class="mobile-menu-link" href="/archives">Archives
             </a>
             
          
             
 
-            <a class="mobile-menu-link" href="/tags">标签
+            <a class="mobile-menu-link" href="/tags">Tags
             </a>
             
          
             
 
-            <a class="mobile-menu-link" href="/about">关于
+            <a class="mobile-menu-link" href="/about">About
             </a>
             
          
                           
 
-            <a class="mobile-menu-link mobile-menu-search" href="#">搜索 </a>                 
+            <a class="mobile-menu-link mobile-menu-search" href="#">Search </a>                 
             
          
       
